@@ -21,7 +21,14 @@ const plusJakarta = Plus_Jakarta_Sans({
 
 export async function generateMetadata(): Promise<Metadata> {
   const config = readSiteConfig();
+  let metadataBase: URL | undefined;
+  try {
+    metadataBase = new URL(config.baseUrl || "http://localhost:3000");
+  } catch {
+    metadataBase = undefined;
+  }
   return {
+    metadataBase,
     title: {
       default: `${config.siteName} — Curated Amazon Home & Kitchen Finds`,
       template: `%s | ${config.siteName}`,
