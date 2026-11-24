@@ -1,0 +1,110 @@
+[
+  {
+    "id": "prod-spice-rack",
+    "slug": "magnetic-fridge-spice-rack-set",
+    "title": "Magnetic Fridge Spice Rack Organizer (4-Pack)",
+    "category": "kitchen",
+    "badge": "Under $25",
+    "affiliateUrl": "https://www.amazon.com/dp/SAMPLE001?tag=yourtag-20",
+    "imageUrl": "/images/samples/spice-rack.svg",
+    "shortPitch": "Turns the unused side of your refrigerator into a sleek spice & olive oil station in 10 seconds with zero drilling.",
+    "highlights": [
+      "Super-strong magnet holds up to 11 lbs without slipping",
+      "Matte black powder-coated steel fits modern & farmhouse kitchens",
+      "Frees up an entire cabinet shelf instantly"
+    ],
+    "featured": true,
+    "isSample": true,
+    "createdAt": "2026-11-20T08:00:00.000Z"
+  },
+  {
+    "id": "prod-under-sink",
+    "slug": "pull-out-under-sink-2-tier-organizer",
+    "title": "2-Tier Pull-Out Under-Sink Sliding Organizer",
+    "category": "kitchen",
+    "badge": "Best Seller",
+    "affiliateUrl": "https://www.amazon.com/dp/SAMPLE002?tag=yourtag-20",
+    "imageUrl": "/images/samples/under-sink.svg",
+    "shortPitch": "L-shaped sliding drawers fit neatly around sink pipes so cleaning sprays and dishwasher pods are never buried in the back.",
+    "highlights": [
+      "Smooth pull-out bottom basket for effortless reach",
+      "Narrow top shelf clears garbage disposal and plumbing",
+      "Assembles in under 3 minutes with no tools"
+    ],
+    "featured": true,
+    "isSample": true,
+    "createdAt": "2026-11-20T09:00:00.000Z"
+  },
+  {
+    "id": "prod-fridge-bins",
+    "slug": "clear-stackable-fridge-pantry-bins-8-pack",
+    "title": "Clear Stackable Fridge & Pantry Organizer Bins (8-Pack)",
+    "category": "pantry",
+    "badge": "Space Saver",
+    "affiliateUrl": "https://www.amazon.com/dp/SAMPLE003?tag=yourtag-20",
+    "imageUrl": "/images/samples/fridge-bins.svg",
+    "shortPitch": "Instant Pinterest-worthy fridge reset — see every snack, yogurt, and produce item at a glance to cut down food waste.",
+    "highlights": [
+      "Crystal-clear BPA-free shatter-resistant acrylic",
+      "Built-in side handles make pulling heavy bins effortless",
+      "Works in refrigerators, deep pantries, and craft closets"
+    ],
+    "featured": true,
+    "isSample": true,
+    "createdAt": "2026-11-21T08:00:00.000Z"
+  },
+  {
+    "id": "prod-airtight-canisters",
+    "slug": "airtight-pantry-food-storage-containers",
+    "title": "Airtight Pantry Food Storage Canisters with Labels (14-Piece)",
+    "category": "pantry",
+    "badge": "Under $50",
+    "affiliateUrl": "https://www.amazon.com/dp/SAMPLE004?tag=yourtag-20",
+    "imageUrl": "/images/samples/pantry-jars.svg",
+    "shortPitch": "Keep pasta, flour, cereal, and coffee beans crisp for months while giving your pantry shelves a uniform boutique look.",
+    "highlights": [
+      "Silicone-sealed locking lids block humidity completely",
+      "Includes reusable chalkboard labels & white marker",
+      "Stackable footprint maximizes vertical shelf space"
+    ],
+    "featured": false,
+    "isSample": true,
+    "createdAt": "2026-11-21T10:00:00.000Z"
+  },
+  {
+    "id": "prod-vanity-turntable",
+    "slug": "acrylic-360-bathroom-vanity-organizer",
+    "title": "360° Rotating Skincare & Bathroom Vanity Organizer",
+    "category": "bathroom",
+    "badge": "Under $25",
+    "affiliateUrl": "https://www.amazon.com/dp/SAMPLE005?tag=yourtag-20",
+    "imageUrl": "/images/samples/vanity-tray.svg",
+    "shortPitch": "Quietly spins to bring serums, moisturizers, and perfumes right to your fingertips while keeping bathroom counters clutter-free.",
+    "highlights": [
+      "Adjustable shelf heights fit tall toner & lotion bottles",
+      "Smooth ball-bearing turntable won't wobble or squeak",
+      "Easy to rinse clean and takes less than 9 inches of counter space"
+    ],
+    "featured": true,
+    "isSample": true,
+    "createdAt": "2026-11-22T08:00:00.000Z"
+  },
+  {
+    "id": "prod-drawer-dividers",
+    "slug": "bamboo-expandable-drawer-dividers-6-pack",
+    "title": "Expandable Bamboo Drawer Dividers with Inserts (6-Pack)",
+    "category": "organization",
+    "badge": "Gift Idea",
+    "affiliateUrl": "https://www.amazon.com/dp/SAMPLE006?tag=yourtag-20",
+    "imageUrl": "/images/samples/drawer-dividers.svg",
+    "shortPitch": "Spring-loaded natural bamboo dividers turn messy utensil, dresser, and nursery drawers into custom compartments in seconds.",
+    "highlights": [
+      "Soft foam ends protect drawer walls from scratches",
+      "Expands from 17 to 22 inches to fit standard US drawers",
+      "Warm eco-friendly bamboo elevates any drawer aesthetic"
+    ],
+    "featured": false,
+    "isSample": true,
+    "createdAt": "2026-11-22T12:00:00.000Z"
+  }
+]
