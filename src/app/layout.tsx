@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
-import { readSiteConfig } from "@/lib/storage";
+import { isValidGaMeasurementId, readSiteConfig } from "@/lib/storage";
 import { isStudioEnabled } from "@/lib/studio-guard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -53,17 +53,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${plusJakarta.variable}`}>
       <body className="min-h-screen flex flex-col antialiased">
-        {config.gaMeasurementId ? (
+        {config.gaMeasurementId &&
+        isValidGaMeasurementId(config.gaMeasurementId) ? (
           <>
             <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${config.gaMeasurementId}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(config.gaMeasurementId)}`}
               strategy="afterInteractive"
             />
             <Script id="ga4-init" strategy="afterInteractive">
               {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', '${config.gaMeasurementId}');`}
+gtag('config', ${JSON.stringify(config.gaMeasurementId)});`}
             </Script>
           </>
         ) : null}

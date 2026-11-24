@@ -150,15 +150,25 @@ export function PinStudioTab({
   }, [targetType, activeProduct, activeCollection, collectionProducts]);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    void renderPinToCanvas(canvasRef.current, {
+    let cancelled = false;
+    const offscreen = document.createElement("canvas");
+    void renderPinToCanvas(offscreen, {
       template,
       theme,
       headline: effectiveHeadline,
       badgeText: effectiveBadge,
       footerLabel: config.siteName,
       imageUrls,
+    }).then(() => {
+      if (cancelled || !canvasRef.current) return;
+      canvasRef.current.width = offscreen.width;
+      canvasRef.current.height = offscreen.height;
+      const ctx = canvasRef.current.getContext("2d");
+      ctx?.drawImage(offscreen, 0, 0);
     });
+    return () => {
+      cancelled = true;
+    };
   }, [
     template,
     theme,

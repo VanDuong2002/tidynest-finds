@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { isStudioEnabled } from "@/lib/studio-guard";
 import {
   ensureUniqueSlug,
+  isSafeImageUrl,
   readCollections,
   writeCollections,
 } from "@/lib/storage";
@@ -30,6 +31,13 @@ export async function POST(req: NextRequest) {
   if (!title) {
     return NextResponse.json(
       { error: "Tiêu đề bộ sưu tập không được để trống." },
+      { status: 400 }
+    );
+  }
+
+  if (body.coverImageUrl !== undefined && !isSafeImageUrl(body.coverImageUrl)) {
+    return NextResponse.json(
+      { error: "Đường dẫn ảnh bìa không hợp lệ." },
       { status: 400 }
     );
   }
@@ -75,6 +83,13 @@ export async function PUT(req: NextRequest) {
   if (!body.id) {
     return NextResponse.json(
       { error: "Thiếu ID bộ sưu tập." },
+      { status: 400 }
+    );
+  }
+
+  if (body.coverImageUrl !== undefined && !isSafeImageUrl(body.coverImageUrl)) {
+    return NextResponse.json(
+      { error: "Đường dẫn ảnh bìa không hợp lệ." },
       { status: 400 }
     );
   }

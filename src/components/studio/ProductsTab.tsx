@@ -14,7 +14,7 @@ import { CATEGORY_LABELS, PRICE_BADGES } from "@/lib/types";
 
 interface ProductsTabProps {
   products: Product[];
-  onProductsChange: (products: Product[]) => void;
+  onProductsChange: (products: Product[], collections?: import("@/lib/types").Collection[]) => void;
   onCreatePinForProduct: (productId: string) => void;
 }
 
@@ -133,7 +133,7 @@ export function ProductsTab({
       method: "DELETE",
     });
     const data = await res.json();
-    if (res.ok) onProductsChange(data.products);
+    if (res.ok) onProductsChange(data.products, data.collections);
   }
 
   async function handleClearSamples() {
@@ -143,7 +143,7 @@ export function ProductsTab({
       method: "DELETE",
     });
     const data = await res.json();
-    if (res.ok) onProductsChange(data.products);
+    if (res.ok) onProductsChange(data.products, data.collections);
   }
 
   return (

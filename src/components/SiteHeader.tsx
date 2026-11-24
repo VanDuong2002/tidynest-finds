@@ -38,7 +38,7 @@ export function SiteHeader({ config, showStudioLink }: SiteHeaderProps) {
           >
             About
           </Link>
-          {config.pinterestUrl ? (
+          {config.pinterestUrl && /^https?:\/\//i.test(config.pinterestUrl) ? (
             <a
               href={config.pinterestUrl}
               target="_blank"

@@ -55,6 +55,50 @@ export function isValidHttpUrl(value: string): boolean {
   }
 }
 
+export function isValidGaMeasurementId(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  return /^(G|GT|AW|UA)-[A-Z0-9-]+$/i.test(trimmed);
+}
+
+export function isSafeImageUrl(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  if (trimmed.startsWith("/images/")) {
+    return !trimmed.includes("..");
+  }
+  return isValidHttpUrl(trimmed);
+}
+
+export function isSafeExternalHttpUrl(value: string): boolean {
+  if (!isValidHttpUrl(value)) return false;
+  try {
+    const { hostname } = new URL(value.trim());
+    const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    if (
+      host === "localhost" ||
+      host === "::1" ||
+      host === "0.0.0.0" ||
+      host.endsWith(".local") ||
+      host.endsWith(".internal")
+    ) {
+      return false;
+    }
+    if (/^127\./.test(host)) return false;
+    if (/^10\./.test(host)) return false;
+    if (/^192\.168\./.test(host)) return false;
+    if (/^169\.254\./.test(host)) return false;
+    const m172 = /^172\.(\d+)\./.exec(host);
+    if (m172) {
+      const second = Number(m172[1]);
+      if (second >= 16 && second <= 31) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function readJsonFile<T>(filePath: string, fallback: T): T {
   if (!fs.existsSync(filePath)) {
     return fallback;

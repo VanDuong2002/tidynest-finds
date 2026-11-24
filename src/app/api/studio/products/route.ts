@@ -3,8 +3,11 @@ import crypto from "node:crypto";
 import { isStudioEnabled } from "@/lib/studio-guard";
 import {
   ensureUniqueSlug,
+  isSafeImageUrl,
   isValidHttpUrl,
+  readCollections,
   readProducts,
+  writeCollections,
   writeProducts,
 } from "@/lib/storage";
 import type { PriceBadge, Product, ProductCategory } from "@/lib/types";
@@ -50,6 +53,12 @@ export async function POST(req: NextRequest) {
   if (!isValidHttpUrl(affiliateUrl)) {
     return NextResponse.json(
       { error: "Link affiliate phải là đường dẫn http:// hoặc https:// hợp lệ." },
+      { status: 400 }
+    );
+  }
+  if (!isSafeImageUrl(imageUrl)) {
+    return NextResponse.json(
+      { error: "Đường dẫn ảnh phải là /images/... hoặc link https:// hợp lệ." },
       { status: 400 }
     );
   }
@@ -102,6 +111,12 @@ export async function PUT(req: NextRequest) {
   if (body.affiliateUrl !== undefined && !isValidHttpUrl(body.affiliateUrl)) {
     return NextResponse.json(
       { error: "Link affiliate không hợp lệ." },
+      { status: 400 }
+    );
+  }
+  if (body.imageUrl !== undefined && !isSafeImageUrl(body.imageUrl)) {
+    return NextResponse.json(
+      { error: "Đường dẫn ảnh không hợp lệ." },
       { status: 400 }
     );
   }
@@ -160,5 +175,14 @@ export async function DELETE(req: NextRequest) {
   }
 
   writeProducts(next);
-  return NextResponse.json({ products: next });
+
+  const remainingIds = new Set(next.map((p) => p.id));
+  const collections = readCollections();
+  const prunedCollections = collections.map((c) => ({
+    ...c,
+    productIds: c.productIds.filter((pid) => remainingIds.has(pid)),
+  }));
+  writeCollections(prunedCollections);
+
+  return NextResponse.json({ products: next, collections: prunedCollections });
 }

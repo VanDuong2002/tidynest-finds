@@ -124,7 +124,10 @@ export function StudioWorkspace({
         {activeTab === "products" ? (
           <ProductsTab
             products={products}
-            onProductsChange={setProducts}
+            onProductsChange={(nextProducts, nextCollections) => {
+              setProducts(nextProducts);
+              if (nextCollections) setCollections(nextCollections);
+            }}
             onCreatePinForProduct={(id) => {
               setPinTarget({ type: "product", id });
               setActiveTab("pin-studio");

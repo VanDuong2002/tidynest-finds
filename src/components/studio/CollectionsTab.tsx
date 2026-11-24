@@ -86,6 +86,17 @@ export function CollectionsTab({
     }
   }
 
+  const hasSamples = collections.some((c) => c.isSample);
+
+  async function handleClearSamples() {
+    if (!confirm("Xóa toàn bộ bộ sưu tập mẫu?")) return;
+    const res = await fetch("/api/studio/collections?scope=samples", {
+      method: "DELETE",
+    });
+    const data = await res.json();
+    if (res.ok) onCollectionsChange(data.collections);
+  }
+
   async function handleDelete(id: string) {
     if (!confirm("Xóa bộ sưu tập này?")) return;
     const res = await fetch(
@@ -157,6 +168,18 @@ export function CollectionsTab({
 
         <div>
           <label className="block font-medium text-[#352E29]">
+            Ảnh bìa bộ sưu tập (URL hoặc /images/...)
+          </label>
+          <input
+            value={form.coverImageUrl}
+            onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })}
+            placeholder="/images/samples/spice-rack.svg"
+            className="mt-1 w-full rounded-xl border border-[#DDD1C2] px-3.5 py-2 focus:border-[#C25E3A] focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium text-[#352E29]">
             Chọn sản phẩm đưa vào bộ sưu tập ({form.productIds.length} món)
           </label>
           <div className="mt-2 max-h-56 space-y-1.5 overflow-y-auto rounded-xl border border-[#E6DCCF] bg-[#FAF7F2] p-3">
@@ -204,13 +227,24 @@ export function CollectionsTab({
       </form>
 
       <div className="lg:col-span-3 space-y-4">
-        <div>
-          <h2 className="font-display text-xl font-semibold text-[#1F1B18]">
-            Các bộ sưu tập ({collections.length})
-          </h2>
-          <p className="text-xs text-[#665B52]">
-            1 Pin dẫn về bài Top 4–5 sản phẩm thường kéo nhiều lượt bấm Amazon hơn Pin đơn lẻ.
-          </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-xl font-semibold text-[#1F1B18]">
+              Các bộ sưu tập ({collections.length})
+            </h2>
+            <p className="text-xs text-[#665B52]">
+              1 Pin dẫn về bài Top 4–5 sản phẩm thường kéo nhiều lượt bấm Amazon hơn Pin đơn lẻ.
+            </p>
+          </div>
+          {hasSamples ? (
+            <button
+              type="button"
+              onClick={handleClearSamples}
+              className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-100"
+            >
+              Xóa bộ sưu tập mẫu
+            </button>
+          ) : null}
         </div>
 
         <div className="space-y-3">

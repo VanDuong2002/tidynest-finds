@@ -179,15 +179,31 @@ function parseNumberCell(value: string | undefined): number {
   return Number.isFinite(num) ? num : 0;
 }
 
+function formatLocalYmd(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 function normalizeDate(value: string | undefined): string {
-  if (!value) return new Date().toISOString().slice(0, 10);
+  if (!value) return formatLocalYmd(new Date());
   const trimmed = value.trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+
+  const usMatch = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(trimmed);
+  if (usMatch) {
+    const mm = usMatch[1].padStart(2, "0");
+    const dd = usMatch[2].padStart(2, "0");
+    const yyyy = usMatch[3];
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
   const parsed = new Date(trimmed);
   if (!Number.isNaN(parsed.getTime())) {
-    return parsed.toISOString().slice(0, 10);
+    return formatLocalYmd(parsed);
   }
-  return new Date().toISOString().slice(0, 10);
+  return formatLocalYmd(new Date());
 }
 
 export function parseAmazonAssociatesCsv(
@@ -221,21 +237,36 @@ export function parseAmazonAssociatesCsv(
   }
 
   const headers = parseCsvLine(lines[headerIdx]).map((h) => h.toLowerCase());
-  const findCol = (patterns: string[]): number =>
-    headers.findIndex((h) => patterns.some((p) => h.includes(p)));
+  const findCol = (patterns: string[]): number => {
+    for (const p of patterns) {
+      const idx = headers.findIndex((h) => h.includes(p));
+      if (idx >= 0) return idx;
+    }
+    return -1;
+  };
 
   const dateCol = findCol(["date", "day", "time"]);
-  const nameCol = findCol(["product", "item name", "title", "name"]);
+  const nameCol = findCol(["product name", "item name", "product", "title", "name"]);
   const viewsCol = findCol(["view", "impression"]);
   const clicksCol = findCol(["click"]);
-  const ordersCol = findCol(["ordered", "shipped items", "orders", "qty", "quantity"]);
-  const revenueCol = findCol(["shipped revenue", "revenue", "sales"]);
+  const ordersCol = findCol(["ordered items", "shipped items", "orders", "qty", "quantity"]);
+  const revenueCol = findCol(["shipped revenue", "ordered product sales", "revenue", "sales"]);
   const commissionCol = findCol(["advertising fee", "ad fee", "commission", "earning", "fees"]);
 
   const rows: Omit<AnalyticsEntry, "id">[] = [];
   for (let i = headerIdx + 1; i < lines.length; i += 1) {
     const cells = parseCsvLine(lines[i]);
     if (cells.length === 0 || cells.every((c) => c === "")) continue;
+
+    const firstCellLower = (cells[0] ?? "").trim().toLowerCase();
+    const nameCellLower =
+      nameCol >= 0 ? (cells[nameCol] ?? "").trim().toLowerCase() : "";
+    if (
+      /^(grand\s+)?totals?$/.test(firstCellLower) ||
+      /^(grand\s+)?totals?$/.test(nameCellLower)
+    ) {
+      continue;
+    }
 
     const views = viewsCol >= 0 ? Math.round(parseNumberCell(cells[viewsCol])) : 0;
     const clicks = clicksCol >= 0 ? Math.round(parseNumberCell(cells[clicksCol])) : 0;
