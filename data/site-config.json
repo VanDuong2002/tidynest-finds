@@ -2,8 +2,8 @@
   "siteName": "TidyNest Finds",
   "tagline": "Smart Home & Kitchen Finds That Make Everyday Living Effortless",
   "disclosureText": "As an Amazon Associate I earn from qualifying purchases.",
-  "pinterestUrl": "https://www.pinterest.com/",
+  "pinterestUrl": "https://www.pinterest.com/tidynestfinds01",
   "gaMeasurementId": "",
   "usdToVndRate": 25400,
-  "baseUrl": "http://localhost:3000"
+  "baseUrl": "https://tidynest-finds-515f.vercel.app"
 }

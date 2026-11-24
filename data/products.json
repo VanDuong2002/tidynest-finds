@@ -1,5 +1,27 @@
 [
   {
+    "id": "prod-35ed7dde",
+    "slug": "magnetic-fridge-spice-rack-organizer-4-pack",
+    "title": "Magnetic Fridge Spice Rack Organizer (4-Pack)",
+    "category": "kitchen",
+    "badge": "Under $25",
+    "affiliateUrl": "https://link.amazon/B0hCLbDge",
+    "imageUrl": "/images/uploads/1795525697374-71kya2aybil-ac-sl1500.jpg",
+    "shortPitch": "A clever everyday home upgrade curated for clutter-free living.",
+    "highlights": [
+      "Rustproof Material",
+      "Metal",
+      "Space saver on the side of our refrigerator for our small kitchen with limited space",
+      "Really easy to access spices",
+      "Easy to adjust and move",
+      "Fit all of your spices",
+      "Really strong and heavy duty magnet"
+    ],
+    "featured": true,
+    "isSample": false,
+    "createdAt": "2026-11-24T13:11:03.914Z"
+  },
+  {
     "id": "prod-spice-rack",
     "slug": "magnetic-fridge-spice-rack-set",
     "title": "Magnetic Fridge Spice Rack Organizer (4-Pack)",
