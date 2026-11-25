@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 declare global {
   interface Window {
@@ -27,10 +27,10 @@ export function AffiliateButton({
 }: AffiliateButtonProps) {
   const sizeClasses =
     size === "lg"
-      ? "px-6 py-3.5 text-base"
+      ? "!min-h-[52px] !px-7 text-sm"
       : size === "sm"
-        ? "px-3.5 py-2 text-xs"
-        : "px-4 py-2.5 text-sm";
+        ? "!min-h-[40px] !px-4 text-xs"
+        : "!min-h-[46px] !px-5 text-sm";
 
   function handleClick() {
     if (typeof window !== "undefined" && typeof window.gtag === "function") {
@@ -49,10 +49,10 @@ export function AffiliateButton({
       rel="nofollow sponsored noopener noreferrer"
       onClick={handleClick}
       data-product-slug={productSlug}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl bg-[#C25E3A] font-semibold text-white shadow-sm transition hover:bg-[#A54B2B] active:scale-[0.99] ${sizeClasses} ${className}`}
+      className={`refract-btn ${sizeClasses} ${className}`}
     >
-      <span>Check Latest Price on Amazon</span>
-      <ExternalLink className="h-4 w-4 shrink-0" />
+      <span>Check price on Amazon</span>
+      <ArrowUpRight className="h-4 w-4 shrink-0" />
     </a>
   );
 }

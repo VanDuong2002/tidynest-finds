@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowUpRight, Search } from "lucide-react";
 import type { Collection, Product, ProductCategory } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/types";
 import { ProductCard } from "./ProductCard";
@@ -10,7 +10,7 @@ import { ProductCard } from "./ProductCard";
 type FilterValue = "all" | ProductCategory | "under-25";
 
 const FILTER_OPTIONS: { value: FilterValue; label: string }[] = [
-  { value: "all", label: "All Finds" },
+  { value: "all", label: "All finds" },
   { value: "kitchen", label: CATEGORY_LABELS.kitchen },
   { value: "pantry", label: CATEGORY_LABELS.pantry },
   { value: "bathroom", label: CATEGORY_LABELS.bathroom },
@@ -50,79 +50,36 @@ export function HomeDiscovery({
 
   return (
     <>
-      {collections.length > 0 ? (
-        <section id="collections" className="mx-auto max-w-6xl px-4 pt-12 sm:px-6">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#4D6B57]">
-                Curated Guides
-              </p>
-              <h2 className="mt-1 font-display text-2xl font-semibold text-[#1F1B18] sm:text-3xl">
-                Popular Home Reset Collections
-              </h2>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-            {collections.map((col) => (
-              <Link
-                key={col.id}
-                href={`/collections/${col.slug}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-[#E6DCCF] bg-white shadow-xs transition hover:-translate-y-0.5 hover:shadow-md sm:flex-row"
-              >
-                <div className="aspect-[4/3] w-full shrink-0 bg-[#F5EFE6] sm:aspect-auto sm:w-44">
-                  <img
-                    src={col.coverImageUrl}
-                    alt={col.title}
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col justify-between p-5">
-                  <div>
-                    <span className="inline-block rounded-full bg-[#EAEFE9] px-2.5 py-0.5 text-[11px] font-semibold text-[#4D6B57]">
-                      {col.productIds.length} Curated Picks
-                    </span>
-                    <h3 className="mt-2 font-display text-lg font-semibold leading-snug text-[#1F1B18] group-hover:text-[#C25E3A] transition">
-                      {col.title}
-                    </h3>
-                    <p className="mt-1.5 text-sm text-[#665B52] line-clamp-2">
-                      {col.subtitle}
-                    </p>
-                  </div>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#C25E3A]">
-                    Browse collection <ArrowRight className="h-3.5 w-3.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <section id="finds" className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      {/* Curated Archive Section */}
+      <section
+        id="finds"
+        className="mx-auto max-w-[1360px] px-5 pt-12 pb-24 sm:px-8 lg:px-14"
+      >
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#C25E3A]">
-              Hand-Picked Favorites
-            </p>
-            <h2 className="mt-1 font-display text-2xl font-semibold text-[#1F1B18] sm:text-3xl">
-              Latest Amazon Home &amp; Kitchen Finds
+            <h2 className="font-display text-3xl font-normal text-[var(--color-ink)] sm:text-[2.75rem] sm:leading-[1.08]">
+              Finds, room by room
             </h2>
+            <p className="mt-2 max-w-xl text-base text-[var(--color-ink-2)]">
+              Clean, functional organizers chosen to clear kitchen counters,
+              pantries, and small spaces.
+            </p>
           </div>
 
           <div className="relative w-full sm:w-72">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8A7D72]" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search organizers, pantry, kitchen..."
-              className="w-full rounded-xl border border-[#E6DCCF] bg-white py-2.5 pl-10 pr-4 text-sm text-[#1F1B18] placeholder:text-[#9A8E83] focus:border-[#C25E3A] focus:outline-none"
+              placeholder="Search organizers, pantry..."
+              className="w-full rounded-full border border-[var(--color-rule)] bg-[var(--color-light)] py-2.5 pl-10 pr-4 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-muted)] transition-colors focus:border-[var(--color-accent)] focus:outline-none"
             />
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        {/* Refract Segmented Pill Control on --color-paper-2 */}
+        <div className="mt-7 inline-flex max-w-full flex-wrap items-center gap-1 rounded-2xl border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-1 sm:rounded-full">
           {FILTER_OPTIONS.map((opt) => {
             const active = activeFilter === opt.value;
             return (
@@ -130,10 +87,10 @@ export function HomeDiscovery({
                 key={opt.value}
                 type="button"
                 onClick={() => setActiveFilter(opt.value)}
-                className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                className={`rounded-full px-4 py-2 text-xs font-medium transition-colors duration-150 ${
                   active
-                    ? "bg-[#1F1B18] text-white shadow-xs"
-                    : "border border-[#E6DCCF] bg-white text-[#4F463F] hover:border-[#C25E3A] hover:text-[#C25E3A]"
+                    ? "bg-[var(--color-ink)] text-[var(--color-accent-ink)]"
+                    : "text-[var(--color-ink-2)] hover:text-[var(--color-ink)]"
                 }`}
               >
                 {opt.label}
@@ -143,22 +100,86 @@ export function HomeDiscovery({
         </div>
 
         {filteredProducts.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-dashed border-[#D8CBB9] bg-white/60 p-10 text-center">
-            <p className="font-display text-lg text-[#1F1B18]">
+          <div className="refract-card mt-10 p-12 text-center">
+            <p className="font-display text-xl text-[var(--color-ink)]">
               No matching finds yet
             </p>
-            <p className="mt-1 text-sm text-[#665B52]">
+            <p className="mt-1.5 text-sm text-[var(--color-muted)]">
               Try switching categories or clearing your search term.
             </p>
           </div>
         ) : (
-          <div className="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} sourcePage="home" />
+              <ProductCard
+                key={product.id}
+                product={product}
+                sourcePage="home"
+              />
             ))}
           </div>
         )}
       </section>
+
+      {/* Room Reset Guides Band on --color-paper-2 */}
+      {collections.length > 0 ? (
+        <section
+          id="collections"
+          className="border-y border-[var(--color-rule)] bg-[var(--color-paper-2)] py-24"
+        >
+          <div className="mx-auto max-w-[1360px] px-5 sm:px-8 lg:px-14">
+            <div className="max-w-xl">
+              <h2 className="font-display text-3xl font-normal text-[var(--color-ink)] sm:text-[2.75rem] sm:leading-[1.08]">
+                Weekend reset guides
+              </h2>
+              <p className="mt-2 text-base text-[var(--color-ink-2)]">
+                Curated multi-item lists built to reorganize an entire room in
+                one afternoon.
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-7 md:grid-cols-2">
+              {collections.map((col, idx) => (
+                <Link
+                  key={col.id}
+                  href={`/collections/${col.slug}`}
+                  className="refract-card group grid overflow-hidden p-3.5 transition-transform duration-300 hover:-translate-y-0.5 sm:grid-cols-5 sm:gap-5"
+                >
+                  <div className="aspect-[4/3] overflow-hidden rounded-[12px] bg-[var(--color-paper-2)] sm:col-span-2 sm:aspect-auto">
+                    <img
+                      src={col.coverImageUrl}
+                      alt={col.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                  </div>
+                  <div className="flex flex-col justify-between px-1.5 pt-4 pb-1 sm:col-span-3 sm:py-2">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="rounded-full bg-[var(--color-accent-soft)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-accent)]">
+                          {col.productIds.length} picks
+                        </span>
+                        <span className="font-display text-sm font-light tabular-nums text-[var(--color-muted)]">
+                          0{idx + 1}
+                        </span>
+                      </div>
+                      <h3 className="mt-3 font-display text-xl font-normal leading-snug text-[var(--color-ink)] transition-colors group-hover:text-[var(--color-accent)]">
+                        {col.title}
+                      </h3>
+                      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--color-ink-2)]">
+                        {col.subtitle}
+                      </p>
+                    </div>
+                    <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-[var(--color-accent)]">
+                      Open guide
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

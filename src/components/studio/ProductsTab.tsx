@@ -38,7 +38,53 @@ export function ProductsTab({
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [autoFilling, setAutoFilling] = useState(false);
+  const [quickUrl, setQuickUrl] = useState("");
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  async function handleAutoFillFromAmazon() {
+    if (!quickUrl.trim()) return;
+    setAutoFilling(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/studio/import-amazon", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          input: quickUrl.trim(),
+          autoSave: false,
+          downloadImage: true,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Không tự điền được link này.");
+      const d = data.draft;
+      setForm((prev) => ({
+        ...prev,
+        title: d.title || prev.title,
+        category: d.category || prev.category,
+        badge: d.badge || prev.badge,
+        affiliateUrl: d.affiliateUrl || prev.affiliateUrl,
+        imageUrl: d.imageUrl || prev.imageUrl,
+        shortPitch: d.shortPitch || prev.shortPitch,
+        highlightsText:
+          d.highlights?.length > 0
+            ? d.highlights.join("\n")
+            : prev.highlightsText,
+      }));
+      setMessage({
+        type: d.blocked ? "err" : "ok",
+        text: data.message || "Đã tự động điền thông tin!",
+      });
+    } catch (err) {
+      setMessage({
+        type: "err",
+        text: err instanceof Error ? err.message : "Lỗi tự điền Amazon.",
+      });
+    } finally {
+      setAutoFilling(false);
+    }
+  }
 
   const hasSamples = products.some((p) => p.isSample);
 
@@ -168,6 +214,30 @@ export function ProductsTab({
         </div>
 
         <div className="mt-4 space-y-4 text-sm">
+          {!form.id ? (
+            <div className="rounded-xl border border-dashed border-[#CBBBA8] bg-[#FAF7F2] p-3">
+              <label className="block text-xs font-semibold text-[#181512]">
+                Dán link Amazon / ASIN để tự điền + gắn Associate Tag:
+              </label>
+              <div className="mt-1.5 flex gap-2">
+                <input
+                  value={quickUrl}
+                  onChange={(e) => setQuickUrl(e.target.value)}
+                  placeholder="https://www.amazon.com/dp/B0... hoặc mã ASIN"
+                  className="flex-1 rounded-lg border border-[#DDD1C2] bg-white px-3 py-1.5 text-xs"
+                />
+                <button
+                  type="button"
+                  onClick={handleAutoFillFromAmazon}
+                  disabled={autoFilling || !quickUrl.trim()}
+                  className="rounded-lg bg-[#181512] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#332D28] disabled:opacity-50"
+                >
+                  {autoFilling ? "Đang lấy..." : "Tự điền"}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
           <div>
             <label className="block font-medium text-[#352E29]">
               Tên sản phẩm (Tiếng Anh cho khách Mỹ) *

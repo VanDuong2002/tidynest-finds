@@ -17,6 +17,13 @@ export interface SiteConfig {
   gaMeasurementId: string;
   usdToVndRate: number;
   baseUrl: string;
+  amazonAssociateTag?: string;
+}
+
+export interface StudioSecrets {
+  pinterestAccessToken: string;
+  pinterestBoardId: string;
+  pinterestSandbox?: boolean;
 }
 
 export interface Product {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, Wrench } from "lucide-react";
+import { Wrench } from "lucide-react";
 import type { SiteConfig } from "@/lib/types";
 
 interface SiteHeaderProps {
@@ -9,32 +9,34 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ config, showStudioLink }: SiteHeaderProps) {
   return (
-    <header className="sticky top-0 z-30 border-b border-[#E6DCCF] bg-[#FAF7F2]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C25E3A] text-white shadow-sm transition group-hover:bg-[#A54B2B]">
-            <Sparkles className="h-4 w-4" />
+    <div className="sticky top-4 z-40 mx-auto w-full max-w-[880px] px-4">
+      <header className="refract-nav-pill flex h-16 items-center justify-between rounded-full px-4 sm:px-5">
+        <Link href="/" className="group flex items-center gap-2.5 pl-1">
+          <span
+            aria-hidden="true"
+            className="h-[18px] w-[18px] rounded-full border-[4px] border-[var(--color-accent)] transition-transform duration-200 group-hover:scale-110"
+          />
+          <span className="font-display text-[1.0625rem] font-medium tracking-tight text-[var(--color-ink)]">
+            {config.siteName}
           </span>
-          <div>
-            <span className="font-display text-lg font-semibold tracking-tight text-[#1F1B18] block leading-none">
-              {config.siteName}
-            </span>
-            <span className="text-[11px] uppercase tracking-widest text-[#7A6E64]">
-              Home &amp; Kitchen Edit
-            </span>
-          </div>
         </Link>
 
-        <nav className="flex items-center gap-5 text-sm font-medium text-[#4F463F]">
-          <Link href="/#finds" className="hover:text-[#C25E3A] transition">
+        <nav className="flex items-center gap-4 text-sm text-[var(--color-ink-2)] sm:gap-6">
+          <Link
+            href="/#finds"
+            className="transition-colors duration-150 hover:text-[var(--color-ink)]"
+          >
             Finds
           </Link>
-          <Link href="/#collections" className="hover:text-[#C25E3A] transition">
-            Collections
+          <Link
+            href="/#collections"
+            className="transition-colors duration-150 hover:text-[var(--color-ink)]"
+          >
+            Guides
           </Link>
           <Link
             href="/about"
-            className="hidden sm:inline hover:text-[#C25E3A] transition"
+            className="hidden sm:inline transition-colors duration-150 hover:text-[var(--color-ink)]"
           >
             About
           </Link>
@@ -43,22 +45,30 @@ export function SiteHeader({ config, showStudioLink }: SiteHeaderProps) {
               href={config.pinterestUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden md:inline-flex items-center rounded-full border border-[#E6DCCF] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#1F1B18] hover:border-[#C25E3A] hover:text-[#C25E3A] transition"
+              className="hidden md:inline transition-colors duration-150 hover:text-[var(--color-ink)]"
             >
-              Follow on Pinterest
+              Pinterest
             </a>
           ) : null}
+
           {showStudioLink ? (
             <Link
               href="/studio"
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#1F1B18] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#3A332E] transition"
+              className="refract-btn !min-h-[40px] !px-4 text-xs"
             >
               <Wrench className="h-3.5 w-3.5" />
-              Mở Studio
+              Studio
             </Link>
-          ) : null}
+          ) : (
+            <Link
+              href="/#finds"
+              className="refract-btn !min-h-[40px] !px-5 text-xs"
+            >
+              Browse finds
+            </Link>
+          )}
         </nav>
-      </div>
-    </header>
+      </header>
+    </div>
   );
 }

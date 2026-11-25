@@ -3,22 +3,168 @@
 @tailwind utilities;
 
 :root {
-  --bg-cream: #faf7f2;
-  --bg-sand: #f2ebe0;
-  --ink: #1f1b18;
-  --ink-muted: #665b52;
-  --terracotta: #c25e3a;
-  --terracotta-dark: #a54b2b;
-  --sage: #4d6b57;
-  --border-warm: #e6dccf;
+  color-scheme: light;
+
+  /* Refract OKLCH Surface & Deck Tokens */
+  --color-paper: oklch(98.2% 0.006 95);
+  --color-paper-2: oklch(96.4% 0.006 95);
+  --color-paper-3: oklch(93.6% 0.008 95);
+  --color-light: oklch(99.6% 0.005 210);
+
+  /* Ink & Rules */
+  --color-ink: oklch(23% 0.035 245);
+  --color-ink-2: oklch(36% 0.035 245);
+  --color-muted: oklch(50% 0.025 240);
+  --color-rule: oklch(89.5% 0.008 230);
+  --color-rule-2: oklch(93.5% 0.006 230);
+
+  /* Cerulean Pool Accents */
+  --color-accent: oklch(50% 0.12 234);
+  --color-accent-hi: oklch(44% 0.12 236);
+  --color-accent-ink: oklch(99% 0.003 95);
+  --color-accent-soft: oklch(94% 0.025 220);
+  --color-focus: oklch(56% 0.14 234);
+
+  /* Pool & Caustic Floor */
+  --color-shade: oklch(86% 0.05 212);
+  --color-shade-2: oklch(74% 0.07 220);
+  --color-grout: oklch(91% 0.04 212);
+  --color-wall: oklch(41% 0.09 225);
+
+  /* Radii */
+  --radius-card: 22px;
+  --radius-inner: 12px;
+  --radius-pill: 999px;
+
+  /* Specular Edge & Directional Blue Sun Shadows */
+  --edge-light: inset 0 1px 0 oklch(100% 0 0 / 0.9),
+    inset 0 0 0 1px oklch(100% 0 0 / 0.55);
+  --shadow-card: 18px 28px 48px -26px oklch(52% 0.09 220 / 0.36),
+    2px 3px 6px -2px oklch(40% 0.05 230 / 0.12);
+  --shadow-cast: 28px 40px 70px -30px oklch(60% 0.11 212 / 0.45),
+    0 2px 10px -2px oklch(42% 0.08 225 / 0.14);
+  --shadow-btn: inset 0 1px 0 oklch(100% 0 0 / 0.35),
+    10px 16px 28px -16px oklch(44% 0.12 236 / 0.58);
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
-  background-color: var(--bg-cream);
-  color: var(--ink);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 .font-display {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.032em;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Signature Refract Pool Basin (Tiled Floor + Coping Shadow) */
+.refract-pool {
+  background-color: var(--color-shade);
+  background-image:
+    linear-gradient(to right, var(--color-grout) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grout) 1px, transparent 1px),
+    linear-gradient(160deg, var(--color-shade) 0%, var(--color-shade-2) 100%);
+  background-size: 28px 28px, 28px 28px, 100% 100%;
+  box-shadow: inset 12px 12px 28px -16px oklch(41% 0.09 225 / 0.45);
+}
+
+.refract-clear {
+  background-color: color-mix(in oklab, var(--color-light) 90%, transparent);
+  box-shadow: var(--edge-light), var(--shadow-cast);
+}
+
+.refract-nav-pill {
+  background-color: color-mix(in oklab, var(--color-light) 86%, transparent);
+  border: 1px solid var(--color-rule);
+  box-shadow: var(--edge-light), var(--shadow-card);
+}
+
+.refract-card {
+  background-color: var(--color-light);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  box-shadow: var(--edge-light), var(--shadow-card);
+}
+
+.refract-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  padding: 0 24px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-weight: 500;
+  box-shadow: var(--shadow-btn);
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.refract-btn:hover {
+  background-color: var(--color-accent-hi);
+}
+
+.refract-btn:active {
+  transform: scale(0.985);
+}
+
+.refract-btn-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  padding: 0 24px;
+  border-radius: var(--radius-pill);
+  background-color: color-mix(in oklab, var(--color-light) 88%, transparent);
+  color: var(--color-ink);
+  border: 1px solid var(--color-rule);
+  font-weight: 500;
+  box-shadow: var(--edge-light), var(--shadow-card);
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.refract-btn-clear:hover {
+  background-color: var(--color-light);
+  border-color: var(--color-accent);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

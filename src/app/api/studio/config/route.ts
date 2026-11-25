@@ -6,6 +6,7 @@ import {
   readSiteConfig,
   writeSiteConfig,
 } from "@/lib/storage";
+import { isValidAssociateTag } from "@/lib/amazon-utils";
 import type { SiteConfig } from "@/lib/types";
 
 function guard() {
@@ -63,6 +64,21 @@ export async function PUT(req: NextRequest) {
     );
   }
 
+  const nextAssociateTag = (
+    body.amazonAssociateTag ??
+    existing.amazonAssociateTag ??
+    ""
+  ).trim();
+  if (!isValidAssociateTag(nextAssociateTag)) {
+    return NextResponse.json(
+      {
+        error:
+          "Amazon Associate Tag không hợp lệ (ví dụ hợp lệ: tidynest-20).",
+      },
+      { status: 400 }
+    );
+  }
+
   const updated: SiteConfig = {
     siteName: body.siteName?.trim() || existing.siteName,
     tagline: body.tagline?.trim() || existing.tagline,
@@ -74,6 +90,7 @@ export async function PUT(req: NextRequest) {
         ? Math.round(Number(body.usdToVndRate))
         : existing.usdToVndRate,
     baseUrl: nextBaseUrl,
+    amazonAssociateTag: nextAssociateTag,
   };
 
   writeSiteConfig(updated);

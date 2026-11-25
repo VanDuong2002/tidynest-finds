@@ -48,58 +48,62 @@ export default async function ProductDetailPage({
 
   const related = products
     .filter((p) => p.id !== product.id)
-    .sort((a, b) => Number(b.category === product.category) - Number(a.category === product.category))
+    .sort(
+      (a, b) =>
+        Number(b.category === product.category) -
+        Number(a.category === product.category)
+    )
     .slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-5 pt-10 pb-20 sm:px-8">
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-[#665B52] hover:text-[#C25E3A] transition"
+        className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-accent)]"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to all finds
       </Link>
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:items-start">
-        <div className="overflow-hidden rounded-3xl border border-[#E6DCCF] bg-white shadow-xs">
+      <div className="mt-8 grid gap-10 lg:grid-cols-12 lg:items-start">
+        <div className="refract-card overflow-hidden p-3 lg:sticky lg:top-24 lg:col-span-6">
           <img
             src={product.imageUrl}
             alt={product.title}
-            className="aspect-square w-full object-cover"
+            className="aspect-square w-full rounded-[14px] bg-[var(--color-paper-2)] object-cover"
           />
         </div>
 
-        <div>
+        <div className="lg:col-span-6">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#EAEFE9] px-3 py-1 text-xs font-semibold text-[#4D6B57]">
+            <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs font-medium text-[var(--color-accent)]">
               {CATEGORY_LABELS[product.category]}
             </span>
-            <span className="rounded-full bg-[#1F1B18] px-3 py-1 text-xs font-semibold text-[#FAF7F2]">
+            <span className="rounded-full border border-[var(--color-rule)] bg-[var(--color-light)] px-3 py-1 text-xs font-medium text-[var(--color-ink)]">
               {product.badge}
             </span>
           </div>
 
-          <h1 className="mt-4 font-display text-3xl font-semibold leading-tight text-[#1F1B18] sm:text-4xl">
+          <h1 className="mt-4 font-display text-3xl font-normal leading-[1.08] text-[var(--color-ink)] sm:text-[2.75rem]">
             {product.title}
           </h1>
 
-          <p className="mt-4 text-base leading-relaxed text-[#5E534A]">
+          <p className="mt-4 text-base leading-relaxed text-[var(--color-ink-2)]">
             {product.shortPitch}
           </p>
 
           {product.highlights.length > 0 ? (
-            <div className="mt-6 rounded-2xl border border-[#E6DCCF] bg-white p-5">
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#4D6B57]">
-                Why People Love It
+            <div className="refract-card mt-7 p-6">
+              <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">
+                Why people love it
               </h2>
-              <ul className="mt-3 space-y-2.5">
+              <ul className="mt-4 divide-y divide-[var(--color-rule-2)]">
                 {product.highlights.map((item, idx) => (
                   <li
                     key={idx}
-                    className="flex items-start gap-2.5 text-sm text-[#352E29]"
+                    className="flex items-start gap-3 py-3 text-sm leading-relaxed text-[var(--color-ink-2)] first:pt-0 last:pb-0"
                   >
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EAEFE9] text-[#4D6B57]">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-[var(--color-accent)]">
                       <Check className="h-3.5 w-3.5" />
                     </span>
                     <span>{item}</span>
@@ -109,7 +113,7 @@ export default async function ProductDetailPage({
             </div>
           ) : null}
 
-          <div className="mt-7">
+          <div className="mt-8">
             <AffiliateButton
               href={product.affiliateUrl}
               productSlug={product.slug}
@@ -118,20 +122,20 @@ export default async function ProductDetailPage({
               size="lg"
               className="w-full sm:w-auto"
             />
-            <p className="mt-3 text-xs leading-relaxed text-[#7A6E64]">
-              {config.disclosureText} Clicking this button takes you directly to
-              Amazon to check current availability, reviews, and live pricing.
+            <p className="mt-4 text-xs leading-relaxed text-[var(--color-muted)]">
+              {config.disclosureText} Clicking takes you directly to Amazon to
+              check live pricing, verified reviews, and current stock.
             </p>
           </div>
         </div>
       </div>
 
       {related.length > 0 ? (
-        <section className="mt-16 border-t border-[#E6DCCF] pt-12">
-          <h2 className="font-display text-2xl font-semibold text-[#1F1B18]">
-            More Finds You Might Like
+        <section className="mt-24 border-t border-[var(--color-rule)] pt-14">
+          <h2 className="font-display text-2xl font-normal text-[var(--color-ink)] sm:text-3xl">
+            More finds you might like
           </h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((item) => (
               <ProductCard
                 key={item.id}

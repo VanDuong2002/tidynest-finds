@@ -11,38 +11,46 @@ export function ProductCard({
   sourcePage?: string;
 }) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-[#E6DCCF] bg-white shadow-xs transition hover:-translate-y-0.5 hover:shadow-md">
+    <article className="refract-card group flex flex-col overflow-hidden p-3.5 transition-transform duration-300 hover:-translate-y-0.5">
       <Link
         href={`/finds/${product.slug}`}
-        className="relative aspect-square w-full overflow-hidden bg-[#F5EFE6]"
+        className="relative aspect-[4/3] w-full overflow-hidden rounded-[12px] bg-[var(--color-paper-2)]"
       >
         <img
           src={product.imageUrl}
           alt={product.title}
-          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />
-        <span className="absolute left-3 top-3 rounded-full bg-[#1F1B18]/90 px-3 py-1 text-[11px] font-semibold text-[#FAF7F2]">
+        <span className="absolute left-2.5 top-2.5 rounded-full bg-[var(--color-light)]/92 px-3 py-1 text-xs font-medium text-[var(--color-ink)]">
           {product.badge}
         </span>
       </Link>
 
-      <div className="flex flex-1 flex-col p-5">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#4D6B57]">
-          {CATEGORY_LABELS[product.category]}
-        </p>
+      <div className="flex flex-1 flex-col px-1.5 pt-4 pb-1">
+        <div className="flex items-center justify-between gap-2">
+          <span className="rounded-full bg-[var(--color-accent-soft)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-accent)]">
+            {CATEGORY_LABELS[product.category]}
+          </span>
+          <Link
+            href={`/finds/${product.slug}`}
+            className="text-xs text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
+          >
+            Details →
+          </Link>
+        </div>
 
         <Link
           href={`/finds/${product.slug}`}
-          className="mt-1.5 font-display text-lg font-semibold leading-snug text-[#1F1B18] group-hover:text-[#C25E3A] transition"
+          className="mt-2.5 font-display text-[1.2rem] font-normal leading-snug text-[var(--color-ink)] transition-colors group-hover:text-[var(--color-accent)]"
         >
           {product.title}
         </Link>
 
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#665B52]">
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--color-ink-2)]">
           {product.shortPitch}
         </p>
 
-        <div className="mt-auto pt-5 flex flex-col gap-2">
+        <div className="mt-auto pt-4">
           <AffiliateButton
             href={product.affiliateUrl}
             productSlug={product.slug}
@@ -51,12 +59,6 @@ export function ProductCard({
             size="sm"
             className="w-full"
           />
-          <Link
-            href={`/finds/${product.slug}`}
-            className="text-center text-xs font-medium text-[#665B52] hover:text-[#1F1B18] py-1"
-          >
-            Read full notes →
-          </Link>
         </div>
       </div>
     </article>

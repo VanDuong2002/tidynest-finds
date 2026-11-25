@@ -82,6 +82,7 @@ describe("storage & studio-guard", () => {
       gaMeasurementId: "",
       usdToVndRate: 25400,
       baseUrl: "http://localhost:3000",
+      amazonAssociateTag: "tidynest-20",
     };
     writeSiteConfig(config, dir);
     expect(readSiteConfig(dir)).toEqual(config);

@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { CheckCircle2, Sparkles } from "lucide-react";
 import {
   readCollections,
   readProducts,
   readSiteConfig,
 } from "@/lib/storage";
+import { RefractCaustics } from "@/components/RefractCaustics";
+import { HeroTodayCard } from "@/components/HeroTodayCard";
 import { HomeDiscovery } from "@/components/HomeDiscovery";
 
 export default function HomePage() {
@@ -12,50 +13,63 @@ export default function HomePage() {
   const products = readProducts();
   const collections = readCollections();
 
+  const ranked = [...products].sort(
+    (a, b) =>
+      Number(a.isSample) - Number(b.isSample) ||
+      Number(b.featured) - Number(a.featured)
+  );
+
   return (
     <div>
-      <section className="border-b border-[#E6DCCF] bg-gradient-to-b from-[#F4ECE1] to-[#FAF7F2]">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#DFD1BE] bg-white px-3.5 py-1 text-xs font-semibold text-[#C25E3A]">
-              <Sparkles className="h-3.5 w-3.5" />
-              Curated Amazon US Home &amp; Kitchen Edit
-            </span>
-            <h1 className="mt-4 font-display text-4xl font-semibold leading-tight tracking-tight text-[#1F1B18] sm:text-5xl">
-              {config.tagline}
+      {/* Signature Refract Split Hero: Sunlit Paper Left + Tiled Caustic Pool Right */}
+      <section className="relative -mt-20 min-h-[720px] overflow-x-clip pt-28 pb-16 lg:flex lg:min-h-[92svh] lg:items-center lg:py-0">
+        {/* Right-half Aqua Caustic Pool Basin extending behind the floating navbar */}
+        <div
+          aria-hidden="true"
+          className="refract-pool pointer-events-none absolute inset-y-0 right-0 left-0 hidden overflow-hidden rounded-bl-[36px] lg:left-[47%] lg:bottom-12 lg:block"
+        >
+          <RefractCaustics />
+        </div>
+
+        <div className="relative z-10 mx-auto grid w-full max-w-[1360px] items-center gap-12 px-5 sm:px-8 lg:grid-cols-12 lg:px-14">
+          {/* Left 5 Columns: Crisp Funnel Display Headline & Pill CTAs */}
+          <div className="lg:col-span-5 lg:pr-6">
+            <h1 className="font-display text-[3rem] font-normal leading-[1.03] text-[var(--color-ink)] sm:text-[4rem] lg:text-[4.65rem]">
+              Tidy spaces,
+              <br />
+              every day.
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#5E534A] sm:text-lg">
-              Practical, renter-friendly organizers and clever kitchen tools we
-              curate for calmer countertops, tidier pantries, and smarter small
-              spaces.
+
+            <p className="mt-6 max-w-md text-[1.0625rem] leading-[1.55] text-[var(--color-ink-2)]">
+              {config.tagline}. Practical Amazon home and kitchen finds curated
+              for calmer counters and clutter-free living.
             </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link
-                href="/#finds"
-                className="rounded-xl bg-[#1F1B18] px-5 py-3 text-sm font-semibold text-white hover:bg-[#3A332E] transition"
-              >
-                Explore All Finds
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link href="/#finds" className="refract-btn text-sm">
+                Explore finds
               </Link>
-              <Link
-                href="/#collections"
-                className="rounded-xl border border-[#D8CBB9] bg-white px-5 py-3 text-sm font-semibold text-[#1F1B18] hover:border-[#C25E3A] hover:text-[#C25E3A] transition"
-              >
-                Browse Top Lists
+              <Link href="/#collections" className="refract-btn-clear text-sm">
+                See reset guides
               </Link>
             </div>
-            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-[#665B52]">
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-[#4D6B57]" />
-                Renter-friendly &amp; practical
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-[#4D6B57]" />
-                Hand-picked Amazon US favorites
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-[#4D6B57]" />
-                No fluff, just clutter-clearing finds
-              </span>
+
+            <p className="mt-7 text-xs text-[var(--color-muted)]">
+              Hand-picked Amazon US favorites, updated weekly.
+            </p>
+          </div>
+
+          {/* Right 7 Columns: Floating Interactive Today's Edit Card over Caustic Basin */}
+          <div className="lg:col-span-7 lg:flex lg:justify-center lg:pl-8">
+            <div className="refract-pool relative overflow-hidden rounded-[28px] p-4 sm:p-6 lg:bg-none lg:p-0 lg:shadow-none">
+              <div className="absolute inset-0 lg:hidden">
+                <RefractCaustics />
+              </div>
+              <HeroTodayCard
+                products={ranked}
+                totalProducts={products.length}
+                totalCollections={collections.length}
+              />
             </div>
           </div>
         </div>

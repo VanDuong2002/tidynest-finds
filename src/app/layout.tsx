@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { Funnel_Display, Funnel_Sans } from "next/font/google";
 import Script from "next/script";
 import { isValidGaMeasurementId, readSiteConfig } from "@/lib/storage";
 import { isStudioEnabled } from "@/lib/studio-guard";
@@ -7,14 +7,16 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const funnelDisplay = Funnel_Display({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-display",
   display: "swap",
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
+const funnelSans = Funnel_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -51,7 +53,10 @@ export default function RootLayout({
   const showStudioLink = isStudioEnabled();
 
   return (
-    <html lang="en" className={`${fraunces.variable} ${plusJakarta.variable}`}>
+    <html
+      lang="en"
+      className={`${funnelDisplay.variable} ${funnelSans.variable}`}
+    >
       <body className="min-h-screen flex flex-col antialiased">
         {config.gaMeasurementId &&
         isValidGaMeasurementId(config.gaMeasurementId) ? (

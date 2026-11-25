@@ -83,6 +83,23 @@ export function SettingsTab({ config, onConfigChange }: SettingsTabProps) {
 
         <div>
           <label className="block font-medium text-[#352E29]">
+            Amazon Associate Tag (Mã Affiliate Mỹ — tự động gắn vào mọi link)
+          </label>
+          <input
+            value={form.amazonAssociateTag ?? ""}
+            onChange={(e) =>
+              setForm({ ...form, amazonAssociateTag: e.target.value })
+            }
+            placeholder="tidynest-20"
+            className="mt-1 w-full rounded-xl border border-[#DDD1C2] px-3.5 py-2"
+          />
+          <p className="mt-1 text-xs text-[#7A6E64]">
+            Chỉ cần nhập 1 lần (ví dụ <code>yourtag-20</code>). Mọi link Amazon bạn dán vào Studio sẽ tự động gắn đúng chuẩn <code>?tag=...</code>.
+          </p>
+        </div>
+
+        <div>
+          <label className="block font-medium text-[#352E29]">
             Link hồ sơ Pinterest của bạn
           </label>
           <input

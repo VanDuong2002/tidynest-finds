@@ -5,6 +5,7 @@ import type {
   Collection,
   Product,
   SiteConfig,
+  StudioSecrets,
 } from "./types";
 
 const DEFAULT_DATA_DIR = path.join(process.cwd(), "data");
@@ -17,6 +18,13 @@ const DEFAULT_SITE_CONFIG: SiteConfig = {
   gaMeasurementId: "",
   usdToVndRate: 25400,
   baseUrl: "http://localhost:3000",
+  amazonAssociateTag: "",
+};
+
+const DEFAULT_STUDIO_SECRETS: StudioSecrets = {
+  pinterestAccessToken: "",
+  pinterestBoardId: "",
+  pinterestSandbox: false,
 };
 
 export function slugify(text: string): string {
@@ -163,4 +171,21 @@ export function writeAnalytics(
   dataDir = DEFAULT_DATA_DIR
 ): void {
   writeJsonFile(path.join(dataDir, "analytics.json"), entries);
+}
+
+export function readStudioSecrets(dataDir = DEFAULT_DATA_DIR): StudioSecrets {
+  return {
+    ...DEFAULT_STUDIO_SECRETS,
+    ...readJsonFile<Partial<StudioSecrets>>(
+      path.join(dataDir, "studio-secrets.json"),
+      {}
+    ),
+  };
+}
+
+export function writeStudioSecrets(
+  secrets: StudioSecrets,
+  dataDir = DEFAULT_DATA_DIR
+): void {
+  writeJsonFile(path.join(dataDir, "studio-secrets.json"), secrets);
 }
