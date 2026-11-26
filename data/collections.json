@@ -4,30 +4,31 @@
     "slug": "amazon-kitchen-organizers-clear-counter-clutter",
     "title": "4 Amazon Kitchen Organizers That Instantly Clear Counter Clutter",
     "subtitle": "Small-space kitchen & pantry upgrades you can set up in under 5 minutes.",
-    "coverImageUrl": "/images/samples/spice-rack.svg",
+    "coverImageUrl": "/images/uploads/1795704695869-B0CHNL1JYB.jpg",
     "productIds": [
-      "prod-spice-rack",
-      "prod-under-sink",
-      "prod-fridge-bins",
-      "prod-airtight-canisters"
+      "prod-37584873",
+      "prod-6b6fa5a6",
+      "prod-11008975",
+      "prod-36aa4a63"
     ],
     "intro": "If your kitchen counters always feel cramped no matter how often you tidy up, the fix is usually vertical storage and pull-out zones. Here are four renter-friendly Amazon kitchen organizers that genuinely make daily cooking calmer.",
-    "isSample": true,
+    "isSample": false,
     "createdAt": "2026-11-23T08:00:00.000Z"
   },
   {
     "id": "col-cozy-under-30",
     "slug": "cozy-home-bathroom-upgrades-under-30",
-    "title": "Cozy Home & Bathroom Organization Upgrades Under $30",
+    "title": "Cozy Home & Bathroom Organization Upgrades Under $25",
     "subtitle": "Budget-friendly Amazon finds that make everyday routines feel like a boutique hotel.",
-    "coverImageUrl": "/images/samples/vanity-tray.svg",
+    "coverImageUrl": "/images/uploads/1795704696306-B08K42TJ83.jpg",
     "productIds": [
-      "prod-vanity-turntable",
-      "prod-drawer-dividers",
-      "prod-spice-rack"
+      "prod-272b33c3",
+      "prod-cd010423",
+      "prod-b6ce6e7b",
+      "prod-925bce82"
     ],
     "intro": "You don't need a full remodel to make your home feel calmer and more put-together. These affordable Amazon organization favorites deliver an instant visual upgrade in minutes.",
-    "isSample": true,
+    "isSample": false,
     "createdAt": "2026-11-23T10:00:00.000Z"
   }
 ]
