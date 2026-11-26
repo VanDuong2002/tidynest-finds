@@ -46,6 +46,12 @@ export function ProductCard({
           {product.title}
         </Link>
 
+        {product.ratingLabel ? (
+          <p className="mt-1.5 text-xs font-medium text-[#9A5B13]">
+            {product.ratingLabel}
+          </p>
+        ) : null}
+
         <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--color-ink-2)]">
           {product.shortPitch}
         </p>

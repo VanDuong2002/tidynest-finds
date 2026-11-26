@@ -8,8 +8,8 @@
     "productIds": [
       "prod-37584873",
       "prod-6b6fa5a6",
-      "prod-11008975",
-      "prod-36aa4a63"
+      "prod-6e9bde44",
+      "prod-d5197d2b"
     ],
     "intro": "If your kitchen counters always feel cramped no matter how often you tidy up, the fix is usually vertical storage and pull-out zones. Here are four renter-friendly Amazon kitchen organizers that genuinely make daily cooking calmer.",
     "isSample": false,
@@ -25,10 +25,41 @@
       "prod-272b33c3",
       "prod-cd010423",
       "prod-b6ce6e7b",
-      "prod-925bce82"
+      "prod-37584873"
     ],
     "intro": "You don't need a full remodel to make your home feel calmer and more put-together. These affordable Amazon organization favorites deliver an instant visual upgrade in minutes.",
     "isSample": false,
     "createdAt": "2026-11-23T10:00:00.000Z"
+  },
+  {
+    "id": "col-sunday-fridge-reset",
+    "slug": "sunday-fridge-pantry-reset-essentials",
+    "title": "Sunday Fridge & Pantry Reset: 3 Clear Organizers That Cut Food Waste",
+    "subtitle": "Turn crowded refrigerator shelves and dry-goods cabinets into a calm, visible pantry.",
+    "coverImageUrl": "/images/uploads/1795704695990-B08ZK5WDWN.jpg",
+    "productIds": [
+      "prod-36aa4a63",
+      "prod-11008975",
+      "prod-925bce82"
+    ],
+    "intro": "A 15-minute Sunday fridge reset starts with clear zones so nothing gets buried in the back. These top-rated Amazon pantry containers and stackable fridge bins keep snacks, drinks, and staples fresh and easy to grab.",
+    "isSample": false,
+    "createdAt": "2026-11-26T15:00:00.000Z"
+  },
+  {
+    "id": "col-renter-storage-hacks",
+    "slug": "renter-friendly-small-space-storage-hacks",
+    "title": "Renter-Friendly Small Space Storage Hacks (Zero Drilling Required)",
+    "subtitle": "Clever no-drill shower shelves, bamboo drawer dividers, and rolling under-bed drawers.",
+    "coverImageUrl": "/images/uploads/1795704696226-B094N243T6.jpg",
+    "productIds": [
+      "prod-cd010423",
+      "prod-b6ce6e7b",
+      "prod-c49e78c9",
+      "prod-35ed7dde"
+    ],
+    "intro": "Living in a rental doesn't mean settling for cramped closets and cluttered showers. These zero-drill Amazon storage upgrades maximize every hidden inch and move with you when your lease ends.",
+    "isSample": false,
+    "createdAt": "2026-11-26T15:05:00.000Z"
   }
 ]

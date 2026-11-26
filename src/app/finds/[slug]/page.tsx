@@ -82,6 +82,11 @@ export default async function ProductDetailPage({
             <span className="rounded-full border border-[var(--color-rule)] bg-[var(--color-light)] px-3 py-1 text-xs font-medium text-[var(--color-ink)]">
               {product.badge}
             </span>
+            {product.ratingLabel ? (
+              <span className="rounded-full bg-[#FDF3E3] px-3 py-1 text-xs font-medium text-[#9A5B13]">
+                {product.ratingLabel}
+              </span>
+            ) : null}
           </div>
 
           <h1 className="mt-4 font-display text-3xl font-normal leading-[1.08] text-[var(--color-ink)] sm:text-[2.75rem]">

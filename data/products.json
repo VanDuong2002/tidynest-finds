@@ -16,7 +16,8 @@
     ],
     "featured": true,
     "isSample": false,
-    "createdAt": "2026-11-26T14:51:35.502Z"
+    "createdAt": "2026-11-26T14:51:35.502Z",
+    "ratingLabel": "4.7★ · 42.9K+ Amazon reviews"
   },
   {
     "id": "prod-6b6fa5a6",
@@ -35,7 +36,8 @@
     ],
     "featured": true,
     "isSample": false,
-    "createdAt": "2026-11-26T14:50:35.502Z"
+    "createdAt": "2026-11-26T14:50:35.502Z",
+    "ratingLabel": "4.6★ · 4.7K+ Amazon reviews"
   },
   {
     "id": "prod-6e9bde44",
@@ -54,7 +56,8 @@
     ],
     "featured": true,
     "isSample": false,
-    "createdAt": "2026-11-26T14:49:35.502Z"
+    "createdAt": "2026-11-26T14:49:35.502Z",
+    "ratingLabel": "4.6★ · 10.9K+ Amazon reviews"
   },
   {
     "id": "prod-36aa4a63",
@@ -73,7 +76,8 @@
     ],
     "featured": true,
     "isSample": false,
-    "createdAt": "2026-11-26T14:48:35.502Z"
+    "createdAt": "2026-11-26T14:48:35.502Z",
+    "ratingLabel": "4.7★ · 29K+ Amazon reviews"
   },
   {
     "id": "prod-925bce82",
@@ -92,7 +96,8 @@
     ],
     "featured": false,
     "isSample": false,
-    "createdAt": "2026-11-26T14:47:35.502Z"
+    "createdAt": "2026-11-26T14:47:35.502Z",
+    "ratingLabel": "4.6★ · 14.2K+ Amazon reviews"
   },
   {
     "id": "prod-11008975",
@@ -111,7 +116,8 @@
     ],
     "featured": true,
     "isSample": false,
-    "createdAt": "2026-11-26T14:46:35.502Z"
+    "createdAt": "2026-11-26T14:46:35.502Z",
+    "ratingLabel": "4.7★ · 3.9K+ Amazon reviews"
   },
   {
     "id": "prod-cd010423",
@@ -130,7 +136,8 @@
     ],
     "featured": true,
     "isSample": false,
-    "createdAt": "2026-11-26T14:45:35.502Z"
+    "createdAt": "2026-11-26T14:45:35.502Z",
+    "ratingLabel": "4.6★ · 10.3K+ Amazon reviews"
   },
   {
     "id": "prod-272b33c3",
@@ -149,7 +156,8 @@
     ],
     "featured": true,
     "isSample": false,
-    "createdAt": "2026-11-26T14:44:35.502Z"
+    "createdAt": "2026-11-26T14:44:35.502Z",
+    "ratingLabel": "4.6★ · 6.7K+ Amazon reviews"
   },
   {
     "id": "prod-b6ce6e7b",
@@ -168,7 +176,8 @@
     ],
     "featured": true,
     "isSample": false,
-    "createdAt": "2026-11-26T14:43:35.502Z"
+    "createdAt": "2026-11-26T14:43:35.502Z",
+    "ratingLabel": "4.7★ · 6.7K+ Amazon reviews"
   },
   {
     "id": "prod-c49e78c9",
@@ -187,7 +196,8 @@
     ],
     "featured": false,
     "isSample": false,
-    "createdAt": "2026-11-26T14:42:35.502Z"
+    "createdAt": "2026-11-26T14:42:35.502Z",
+    "ratingLabel": "4.5★ · 3.3K+ Amazon reviews"
   },
   {
     "id": "prod-d5197d2b",

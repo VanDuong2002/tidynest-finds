@@ -38,6 +38,7 @@ export interface Product {
   highlights: string[];
   featured: boolean;
   isSample: boolean;
+  ratingLabel?: string;
   createdAt: string;
 }
 
