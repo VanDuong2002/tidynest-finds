@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   BarChart3,
   ExternalLink,
+  Film,
   FolderKanban,
   Loader2,
   Package,
@@ -23,6 +24,7 @@ import { AutomationTab } from "./AutomationTab";
 import { ProductsTab } from "./ProductsTab";
 import { CollectionsTab } from "./CollectionsTab";
 import { PinStudioTab } from "./PinStudioTab";
+import { SocialStudioTab } from "./SocialStudioTab";
 import { AnalyticsTab } from "./AnalyticsTab";
 import { SettingsTab } from "./SettingsTab";
 
@@ -31,6 +33,7 @@ type StudioTabId =
   | "products"
   | "collections"
   | "pin-studio"
+  | "social-studio"
   | "analytics"
   | "settings";
 
@@ -142,6 +145,7 @@ export function StudioWorkspace({
       icon: FolderKanban,
     },
     { id: "pin-studio", label: "Xưởng Pin 1000×1500", icon: Sparkles },
+    { id: "social-studio", label: "Video 9:16 & Đa Kênh", icon: Film },
     { id: "analytics", label: "Báo cáo & Hoa hồng", icon: BarChart3 },
     { id: "settings", label: "Cài đặt", icon: Settings },
   ];
@@ -265,6 +269,14 @@ export function StudioWorkspace({
             products={products}
             collections={collections}
             initialTarget={pinTarget}
+          />
+        ) : null}
+
+        {activeTab === "social-studio" ? (
+          <SocialStudioTab
+            config={config}
+            products={products}
+            collections={collections}
           />
         ) : null}
 
