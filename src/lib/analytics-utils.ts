@@ -16,6 +16,16 @@ export interface TopProductPerformance {
   orders: number;
   revenueUsd: number;
   commissionUsd: number;
+  commissionRate: number;
+}
+
+export interface AmazonSourceSummary {
+  clicks: number;
+  orders: number;
+  revenueUsd: number;
+  commissionUsd: number;
+  conversionRate: number;
+  effectiveCommissionRate: number;
 }
 
 export interface AnalyticsSummary {
@@ -27,6 +37,8 @@ export interface AnalyticsSummary {
   totalRevenueUsd: number;
   totalCommissionUsd: number;
   totalCommissionVnd: number;
+  avgCommissionRate: number; // percentage 0..100
+  amazonSummary: AmazonSourceSummary;
   threeSalesProgress: {
     current: number;
     target: number;
@@ -51,6 +63,11 @@ export function computeAnalyticsSummary(
   let totalRevenueUsd = 0;
   let totalCommissionUsd = 0;
 
+  let amazonClicks = 0;
+  let amazonOrders = 0;
+  let amazonRevenueUsd = 0;
+  let amazonCommissionUsd = 0;
+
   const byDate = new Map<string, DailySeriesPoint>();
   const byProduct = new Map<string, TopProductPerformance>();
 
@@ -70,6 +87,13 @@ export function computeAnalyticsSummary(
     totalOrders += orders;
     totalRevenueUsd += revenueUsd;
     totalCommissionUsd += commissionUsd;
+
+    if ((e.source || "").toLowerCase().includes("amazon")) {
+      amazonClicks += clicks;
+      amazonOrders += orders;
+      amazonRevenueUsd += revenueUsd;
+      amazonCommissionUsd += commissionUsd;
+    }
 
     const dateKey = e.date || "Unknown";
     const existingDay = byDate.get(dateKey) ?? {
@@ -95,6 +119,7 @@ export function computeAnalyticsSummary(
       orders: 0,
       revenueUsd: 0,
       commissionUsd: 0,
+      commissionRate: 0,
     };
     existingProd.views += views;
     existingProd.clicks += clicks;
@@ -103,15 +128,34 @@ export function computeAnalyticsSummary(
     existingProd.commissionUsd = round2(
       existingProd.commissionUsd + commissionUsd
     );
+    existingProd.commissionRate =
+      existingProd.revenueUsd > 0
+        ? round2((existingProd.commissionUsd / existingProd.revenueUsd) * 100)
+        : 0;
     byProduct.set(prodKey, existingProd);
   }
 
   const ctr = totalViews > 0 ? round2((totalClicks / totalViews) * 100) : 0;
   const conversionRate =
     totalClicks > 0 ? round2((totalOrders / totalClicks) * 100) : 0;
+  const avgCommissionRate =
+    totalRevenueUsd > 0 ? round2((totalCommissionUsd / totalRevenueUsd) * 100) : 0;
   const safeRate =
     Number.isFinite(usdToVndRate) && usdToVndRate > 0 ? usdToVndRate : 25400;
   const totalCommissionVnd = Math.round(totalCommissionUsd * safeRate);
+
+  const amazonSummary: AmazonSourceSummary = {
+    clicks: amazonClicks,
+    orders: amazonOrders,
+    revenueUsd: round2(amazonRevenueUsd),
+    commissionUsd: round2(amazonCommissionUsd),
+    conversionRate:
+      amazonClicks > 0 ? round2((amazonOrders / amazonClicks) * 100) : 0,
+    effectiveCommissionRate:
+      amazonRevenueUsd > 0
+        ? round2((amazonCommissionUsd / amazonRevenueUsd) * 100)
+        : 0,
+  };
 
   const target = 3;
   const percent = Math.min(100, Math.round((totalOrders / target) * 100));
@@ -136,6 +180,8 @@ export function computeAnalyticsSummary(
     totalRevenueUsd: round2(totalRevenueUsd),
     totalCommissionUsd: round2(totalCommissionUsd),
     totalCommissionVnd,
+    avgCommissionRate,
+    amazonSummary,
     threeSalesProgress: {
       current: totalOrders,
       target,

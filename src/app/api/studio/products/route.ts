@@ -79,6 +79,20 @@ export async function POST(req: NextRequest) {
     ? body.highlights.map((h) => String(h).trim()).filter(Boolean)
     : [];
 
+  const estimatedPriceUsd =
+    typeof body.estimatedPriceUsd === "number" &&
+    Number.isFinite(body.estimatedPriceUsd) &&
+    body.estimatedPriceUsd >= 0
+      ? Math.round(body.estimatedPriceUsd * 100) / 100
+      : undefined;
+  const commissionRatePercent =
+    typeof body.commissionRatePercent === "number" &&
+    Number.isFinite(body.commissionRatePercent) &&
+    body.commissionRatePercent >= 0 &&
+    body.commissionRatePercent <= 50
+      ? Math.round(body.commissionRatePercent * 100) / 100
+      : undefined;
+
   const created: Product = {
     id: `prod-${crypto.randomBytes(4).toString("hex")}`,
     slug,
@@ -92,6 +106,8 @@ export async function POST(req: NextRequest) {
     highlights,
     featured: Boolean(body.featured),
     isSample: false,
+    ...(estimatedPriceUsd !== undefined ? { estimatedPriceUsd } : {}),
+    ...(commissionRatePercent !== undefined ? { commissionRatePercent } : {}),
     createdAt: new Date().toISOString(),
   };
 
@@ -131,6 +147,24 @@ export async function PUT(req: NextRequest) {
   }
 
   const existing = products[idx];
+  const estimatedPriceUsd =
+    typeof body.estimatedPriceUsd === "number" &&
+    Number.isFinite(body.estimatedPriceUsd) &&
+    body.estimatedPriceUsd >= 0
+      ? Math.round(body.estimatedPriceUsd * 100) / 100
+      : body.estimatedPriceUsd === undefined
+        ? existing.estimatedPriceUsd
+        : undefined;
+  const commissionRatePercent =
+    typeof body.commissionRatePercent === "number" &&
+    Number.isFinite(body.commissionRatePercent) &&
+    body.commissionRatePercent >= 0 &&
+    body.commissionRatePercent <= 50
+      ? Math.round(body.commissionRatePercent * 100) / 100
+      : body.commissionRatePercent === undefined
+        ? existing.commissionRatePercent
+        : undefined;
+
   const updated: Product = {
     ...existing,
     title: body.title?.trim() || existing.title,
@@ -148,6 +182,8 @@ export async function PUT(req: NextRequest) {
     featured:
       typeof body.featured === "boolean" ? body.featured : existing.featured,
     isSample: false,
+    estimatedPriceUsd,
+    commissionRatePercent,
   };
 
   const next = [...products];

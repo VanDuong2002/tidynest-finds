@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from "react";
 import {
+  Calculator,
+  Check,
   DollarSign,
+  ExternalLink,
   Eye,
   MousePointerClick,
   Percent,
@@ -13,13 +16,17 @@ import {
   Upload,
 } from "lucide-react";
 import type { AnalyticsEntry, Product } from "@/lib/types";
+import { CATEGORY_LABELS, getProductCommissionRate } from "@/lib/types";
 import { computeAnalyticsSummary } from "@/lib/analytics-utils";
+import { extractAsin } from "@/lib/amazon-utils";
 
 interface AnalyticsTabProps {
   entries: AnalyticsEntry[];
   products: Product[];
   usdToVndRate: number;
+  amazonAssociateTag?: string;
   onEntriesChange: (entries: AnalyticsEntry[]) => void;
+  onProductsChange?: (products: Product[]) => void;
 }
 
 const fmtVnd = (n: number) =>
@@ -29,7 +36,9 @@ export function AnalyticsTab({
   entries,
   products,
   usdToVndRate,
+  amazonAssociateTag,
   onEntriesChange,
+  onProductsChange,
 }: AnalyticsTabProps) {
   const summary = useMemo(
     () => computeAnalyticsSummary(entries, usdToVndRate),
@@ -38,7 +47,7 @@ export function AnalyticsTab({
 
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
-    source: "Pinterest",
+    source: "Amazon Associates",
     productId: "",
     views: "0",
     clicks: "0",
@@ -50,7 +59,123 @@ export function AnalyticsTab({
   const [status, setStatus] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // Inline commission rate & estimated price editing per product
+  const [rateDrafts, setRateDrafts] = useState<
+    Record<string, { rate: string; price: string }>
+  >({});
+  const [savingProductId, setSavingProductId] = useState<string | null>(null);
+  const [savedProductId, setSavedProductId] = useState<string | null>(null);
+
   const hasSamples = entries.some((e) => e.isSample);
+
+  const selectedFormProduct = products.find((p) => p.id === form.productId);
+  const selectedFormRate = selectedFormProduct
+    ? getProductCommissionRate(selectedFormProduct)
+    : 3.0;
+
+  // Map actual analytics performance by productId or normalized title
+  const actualByProduct = useMemo(() => {
+    const map = new Map<
+      string,
+      { clicks: number; orders: number; revenueUsd: number; commissionUsd: number }
+    >();
+    for (const tp of summary.topProducts) {
+      if (tp.productId) {
+        map.set(tp.productId, tp);
+      }
+      map.set(tp.productName.toLowerCase(), tp);
+    }
+    return map;
+  }, [summary.topProducts]);
+
+  const productCommissionRows = useMemo(() => {
+    return products.map((p) => {
+      const rate = getProductCommissionRate(p);
+      const estPrice =
+        typeof p.estimatedPriceUsd === "number" && Number.isFinite(p.estimatedPriceUsd)
+          ? p.estimatedPriceUsd
+          : 0;
+      const estCommissionUsd =
+        estPrice > 0 ? Math.round(((estPrice * rate) / 100) * 100) / 100 : 0;
+      const estCommissionVnd = Math.round(estCommissionUsd * usdToVndRate);
+      const actual =
+        actualByProduct.get(p.id) || actualByProduct.get(p.title.toLowerCase());
+      const asin = extractAsin(p.affiliateUrl);
+      return {
+        product: p,
+        asin,
+        rate,
+        estPrice,
+        estCommissionUsd,
+        estCommissionVnd,
+        actual,
+      };
+    });
+  }, [products, usdToVndRate, actualByProduct]);
+
+  const catalogAverages = useMemo(() => {
+    if (productCommissionRows.length === 0) {
+      return { avgRate: 0, avgEstCommissionUsd: 0, bestRow: null as (typeof productCommissionRows)[0] | null };
+    }
+    const avgRate =
+      Math.round(
+        (productCommissionRows.reduce((acc, r) => acc + r.rate, 0) /
+          productCommissionRows.length) *
+          100
+      ) / 100;
+    const withPrice = productCommissionRows.filter((r) => r.estPrice > 0);
+    const avgEstCommissionUsd =
+      withPrice.length > 0
+        ? Math.round(
+            (withPrice.reduce((acc, r) => acc + r.estCommissionUsd, 0) /
+              withPrice.length) *
+              100
+          ) / 100
+        : 0;
+    const bestRow = [...productCommissionRows].sort(
+      (a, b) => b.estCommissionUsd - a.estCommissionUsd
+    )[0];
+    return { avgRate, avgEstCommissionUsd, bestRow };
+  }, [productCommissionRows]);
+
+  async function handleSaveProductRate(product: Product) {
+    const draft = rateDrafts[product.id];
+    if (!draft) return;
+    setSavingProductId(product.id);
+    setStatus(null);
+    try {
+      const parsedRate = Number.parseFloat(draft.rate);
+      const parsedPrice = Number.parseFloat(draft.price);
+      const res = await fetch("/api/studio/products", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: product.id,
+          commissionRatePercent: Number.isFinite(parsedRate) ? parsedRate : undefined,
+          estimatedPriceUsd: Number.isFinite(parsedPrice) ? parsedPrice : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Không cập nhật được tỷ lệ hoa hồng.");
+      if (onProductsChange && data.products) {
+        onProductsChange(data.products);
+      }
+      setRateDrafts((prev) => {
+        const next = { ...prev };
+        delete next[product.id];
+        return next;
+      });
+      setSavedProductId(product.id);
+      setTimeout(() => setSavedProductId(null), 1800);
+    } catch (err) {
+      setStatus({
+        type: "err",
+        text: err instanceof Error ? err.message : "Lỗi cập nhật hoa hồng sản phẩm.",
+      });
+    } finally {
+      setSavingProductId(null);
+    }
+  }
 
   async function handleAddManual(e: React.FormEvent) {
     e.preventDefault();
@@ -226,6 +351,104 @@ export function AnalyticsTab({
         </div>
       </div>
 
+      {/* Amazon Associates US Integration Panel */}
+      <div className="rounded-2xl border border-[#E6DCCF] bg-white p-5 space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center rounded-full bg-[#FFF3EB] px-2.5 py-0.5 text-[11px] font-semibold text-[#B84A27]">
+                Amazon Associates US
+              </span>
+              <span className="rounded-full bg-[#F4ECE1] px-2.5 py-0.5 font-mono text-[11px] font-semibold text-[#1F1B18]">
+                Tag: {amazonAssociateTag || "Chưa cài Tag"}
+              </span>
+            </div>
+            <h3 className="mt-2 font-display text-lg font-semibold text-[#1F1B18]">
+              Đồng bộ &amp; Theo dõi riêng từ Amazon Associates Central
+            </h3>
+            <p className="mt-0.5 text-xs text-[#665B52]">
+              Mở nhanh báo cáo Amazon để tải CSV đơn hàng/hoa hồng, rồi bấm nút Import CSV ở trên để tự cộng vào Dashboard.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <a
+              href="https://affiliate-program.amazon.com/home/reports"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#1F1B18] px-3.5 py-2 font-semibold text-white hover:bg-[#3A332E]"
+            >
+              Báo cáo Amazon
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+            <a
+              href="https://affiliate-program.amazon.com/home/reports/download"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#DDD1C2] bg-[#FAF7F2] px-3.5 py-2 font-semibold text-[#1F1B18] hover:border-[#C25E3A]"
+            >
+              Tải CSV Amazon
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+            <a
+              href="https://affiliate-program.amazon.com/help/node/topic/GRXPHT8U84RAYDXZ"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#DDD1C2] bg-white px-3.5 py-2 font-semibold text-[#5E534A] hover:border-[#C25E3A] hover:text-[#1F1B18]"
+            >
+              Biểu phí hoa hồng US
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="rounded-xl border border-[#EFE6DA] bg-[#FAF7F2] p-3.5">
+            <p className="text-[11px] font-medium text-[#665B52]">Amazon Clicks</p>
+            <p className="mt-1 font-display text-xl font-semibold text-[#1F1B18]">
+              {summary.amazonSummary.clicks.toLocaleString("en-US")}
+            </p>
+          </div>
+          <div className="rounded-xl border border-[#EFE6DA] bg-[#FAF7F2] p-3.5">
+            <p className="text-[11px] font-medium text-[#665B52]">Đơn hàng Amazon</p>
+            <p className="mt-1 font-display text-xl font-semibold text-[#1F1B18]">
+              {summary.amazonSummary.orders}
+            </p>
+            <p className="text-[10px] text-[#4D6B57]">
+              Chuyển đổi: {summary.amazonSummary.conversionRate}%
+            </p>
+          </div>
+          <div className="rounded-xl border border-[#EFE6DA] bg-[#FAF7F2] p-3.5">
+            <p className="text-[11px] font-medium text-[#665B52]">Doanh thu Amazon</p>
+            <p className="mt-1 font-display text-xl font-semibold text-[#1F1B18]">
+              ${summary.amazonSummary.revenueUsd.toFixed(2)}
+            </p>
+          </div>
+          <div className="rounded-xl border border-[#EFE6DA] bg-[#FFF8F4] p-3.5">
+            <p className="text-[11px] font-medium text-[#B84A27]">Hoa hồng Amazon</p>
+            <p className="mt-1 font-display text-xl font-semibold text-[#B84A27]">
+              ${summary.amazonSummary.commissionUsd.toFixed(2)}
+            </p>
+            <p className="text-[10px] text-[#7A6E64]">
+              ≈ {fmtVnd(Math.round(summary.amazonSummary.commissionUsd * usdToVndRate))}
+            </p>
+          </div>
+          <div className="rounded-xl border border-[#EFE6DA] bg-[#FAF7F2] p-3.5">
+            <p className="text-[11px] font-medium text-[#665B52]">% Hoa hồng thực tế</p>
+            <p className="mt-1 font-display text-xl font-semibold text-[#2F523B]">
+              {summary.amazonSummary.effectiveCommissionRate > 0
+                ? `${summary.amazonSummary.effectiveCommissionRate}%`
+                : `${catalogAverages.avgRate}%`}
+            </p>
+            <p className="text-[10px] text-[#7A6E64]">
+              {summary.amazonSummary.effectiveCommissionRate > 0
+                ? "Từ doanh thu Amazon thực"
+                : "TB theo biểu phí danh mục"}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* 6 KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-2xl border border-[#E6DCCF] bg-white p-5">
@@ -273,7 +496,9 @@ export function AnalyticsTab({
           <p className="mt-2 font-display text-3xl font-semibold text-[#1F1B18]">
             ${summary.totalRevenueUsd.toFixed(2)}
           </p>
-          <p className="mt-1 text-xs text-[#7A6E64]">Giá trị đơn hàng trên Amazon</p>
+          <p className="mt-1 text-xs text-[#7A6E64]">
+            Tỷ lệ HH thực tế TB: {summary.avgCommissionRate}%
+          </p>
         </div>
 
         <div className="rounded-2xl border border-[#C25E3A]/40 bg-[#FFF8F4] p-5 sm:col-span-2">
@@ -292,6 +517,178 @@ export function AnalyticsTab({
           <p className="mt-1 text-xs text-[#7A6E64]">
             Tự động tổng hợp từ báo cáo Amazon CSV &amp; dữ liệu nhập tay.
           </p>
+        </div>
+      </div>
+
+      {/* Per-Product Amazon Commission Rates & Earnings Breakdown */}
+      <div className="rounded-2xl border border-[#E6DCCF] bg-white p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="font-display text-lg font-semibold text-[#1F1B18]">
+              Tỷ lệ hoa hồng Amazon US trên từng sản phẩm ({products.length} món)
+            </h3>
+            <p className="mt-1 text-xs text-[#665B52]">
+              Biểu phí chuẩn Amazon US: <strong>Kitchen 4.5%</strong> • <strong>Pantry / Bathroom / Organization 3.0%</strong>. Giá tham khảo chỉ dùng tính dự phóng nội bộ trong Studio (không hiển thị cứng lên web công khai để tuân thủ luật Amazon).
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="rounded-xl bg-[#FAF7F2] border border-[#E6DCCF] px-3 py-1.5 font-semibold text-[#1F1B18]">
+              HH TB danh mục: <span className="text-[#C25E3A]">{catalogAverages.avgRate}%</span>
+            </span>
+            <span className="rounded-xl bg-[#FAF7F2] border border-[#E6DCCF] px-3 py-1.5 font-semibold text-[#1F1B18]">
+              Ước tính / 1 đơn TB:{" "}
+              <span className="text-[#2F523B]">
+                ${catalogAverages.avgEstCommissionUsd.toFixed(2)} (≈{" "}
+                {fmtVnd(Math.round(catalogAverages.avgEstCommissionUsd * usdToVndRate))})
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[760px] text-left text-xs">
+            <thead>
+              <tr className="border-b border-[#E6DCCF] text-[11px] uppercase tracking-wider text-[#7A6E64]">
+                <th className="py-2.5 pr-3">Sản phẩm &amp; ASIN</th>
+                <th className="py-2.5 px-2">Danh mục</th>
+                <th className="py-2.5 px-2">Tỷ lệ HH (%)</th>
+                <th className="py-2.5 px-2">Giá tham khảo ($)</th>
+                <th className="py-2.5 px-2">HH ước tính / đơn</th>
+                <th className="py-2.5 px-2">Thực nhận (Amazon)</th>
+                <th className="py-2.5 pl-2 text-right">Lưu</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1E9DE]">
+              {productCommissionRows.map((row) => {
+                const p = row.product;
+                const draft = rateDrafts[p.id];
+                const rateVal = draft ? draft.rate : String(row.rate);
+                const priceVal = draft
+                  ? draft.price
+                  : row.estPrice > 0
+                    ? String(row.estPrice)
+                    : "";
+                const liveRate = Number.parseFloat(rateVal) || 0;
+                const livePrice = Number.parseFloat(priceVal) || 0;
+                const liveEstUsd =
+                  livePrice > 0
+                    ? Math.round(((livePrice * liveRate) / 100) * 100) / 100
+                    : 0;
+                const liveEstVnd = Math.round(liveEstUsd * usdToVndRate);
+                const isDirty = Boolean(draft);
+
+                return (
+                  <tr key={p.id} className="hover:bg-[#FAF7F2]/70">
+                    <td className="py-3 pr-3">
+                      <div className="flex items-center gap-2.5">
+                        <img
+                          src={p.imageUrl}
+                          alt={p.title}
+                          className="h-9 w-9 shrink-0 rounded-lg border border-[#E6DCCF] object-cover bg-white"
+                        />
+                        <div className="min-w-0 max-w-[260px]">
+                          <p className="truncate font-semibold text-[#1F1B18]">
+                            {p.title}
+                          </p>
+                          <p className="font-mono text-[10px] text-[#7A6E64]">
+                            {row.asin ? `ASIN: ${row.asin}` : p.slug}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 whitespace-nowrap">
+                      <span className="rounded-full bg-[#EAEFE9] px-2 py-0.5 text-[10px] font-semibold text-[#4D6B57]">
+                        {CATEGORY_LABELS[p.category]}
+                      </span>
+                    </td>
+                    <td className="py-3 px-2">
+                      <div className="inline-flex items-center gap-1">
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          max="50"
+                          value={rateVal}
+                          onChange={(e) =>
+                            setRateDrafts((prev) => ({
+                              ...prev,
+                              [p.id]: {
+                                rate: e.target.value,
+                                price: priceVal,
+                              },
+                            }))
+                          }
+                          className="w-16 rounded-lg border border-[#DDD1C2] bg-white px-2 py-1 text-xs font-semibold text-[#B84A27]"
+                        />
+                        <span className="text-[#7A6E64]">%</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2">
+                      <div className="inline-flex items-center gap-1">
+                        <span className="text-[#7A6E64]">$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={priceVal}
+                          placeholder="0.00"
+                          onChange={(e) =>
+                            setRateDrafts((prev) => ({
+                              ...prev,
+                              [p.id]: {
+                                rate: rateVal,
+                                price: e.target.value,
+                              },
+                            }))
+                          }
+                          className="w-20 rounded-lg border border-[#DDD1C2] bg-white px-2 py-1 text-xs"
+                        />
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 whitespace-nowrap">
+                      <p className="font-semibold text-[#2F523B]">
+                        ${liveEstUsd.toFixed(2)}
+                      </p>
+                      <p className="text-[10px] text-[#7A6E64]">
+                        ≈ {fmtVnd(liveEstVnd)}
+                      </p>
+                    </td>
+                    <td className="py-3 px-2 whitespace-nowrap">
+                      {row.actual ? (
+                        <div>
+                          <p className="font-semibold text-[#C25E3A]">
+                            ${row.actual.commissionUsd.toFixed(2)}
+                          </p>
+                          <p className="text-[10px] text-[#7A6E64]">
+                            {row.actual.orders} đơn • {row.actual.clicks} clicks
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-[#9A8E83]">0 đơn</span>
+                      )}
+                    </td>
+                    <td className="py-3 pl-2 text-right">
+                      {savedProductId === p.id ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2F523B]">
+                          <Check className="h-3.5 w-3.5" /> Đã lưu
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={!isDirty || savingProductId === p.id}
+                          onClick={() => handleSaveProductRate(p)}
+                          className="rounded-lg bg-[#1F1B18] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#3A332E] disabled:opacity-30"
+                        >
+                          {savingProductId === p.id ? "..." : "Lưu"}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -345,32 +742,43 @@ export function AnalyticsTab({
           <h3 className="font-display text-lg font-semibold text-[#1F1B18]">
             Top sản phẩm ra tiền tốt nhất
           </h3>
-          <div className="mt-4 space-y-2.5">
-            {summary.topProducts.slice(0, 6).map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between gap-3 rounded-xl bg-[#FAF7F2] px-3.5 py-2.5 text-xs"
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-[#1F1B18]">
-                    {i + 1}. {item.productName}
-                  </p>
-                  <p className="text-[#665B52]">
-                    {item.views.toLocaleString()} views • {item.clicks} clicks •{" "}
-                    {item.orders} đơn
-                  </p>
+          {summary.topProducts.length === 0 ? (
+            <p className="mt-6 text-center text-xs text-[#7A6E64]">
+              Chưa có đơn hàng phát sinh. Import CSV từ Amazon Associates để xem xếp hạng.
+            </p>
+          ) : (
+            <div className="mt-4 space-y-2.5">
+              {summary.topProducts.slice(0, 6).map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-3 rounded-xl bg-[#FAF7F2] px-3.5 py-2.5 text-xs"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-[#1F1B18]">
+                      {i + 1}. {item.productName}
+                    </p>
+                    <p className="text-[#665B52]">
+                      {item.views.toLocaleString()} views • {item.clicks} clicks •{" "}
+                      {item.orders} đơn
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-semibold text-[#C25E3A]">
+                      ${item.commissionUsd.toFixed(2)}{" "}
+                      {item.commissionRate > 0 ? (
+                        <span className="text-[10px] text-[#2F523B]">
+                          ({item.commissionRate}%)
+                        </span>
+                      ) : null}
+                    </p>
+                    <p className="text-[11px] text-[#7A6E64]">
+                      DT: ${item.revenueUsd.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
-                <div className="shrink-0 text-right">
-                  <p className="font-semibold text-[#C25E3A]">
-                    ${item.commissionUsd.toFixed(2)}
-                  </p>
-                  <p className="text-[11px] text-[#7A6E64]">
-                    DT: ${item.revenueUsd.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -401,9 +809,9 @@ export function AnalyticsTab({
                 onChange={(e) => setForm({ ...form, source: e.target.value })}
                 className="mt-1 w-full rounded-xl border border-[#DDD1C2] bg-white px-3 py-2"
               >
+                <option value="Amazon Associates">Amazon Associates</option>
                 <option value="Pinterest">Pinterest</option>
                 <option value="Web Showcase">Web Showcase</option>
-                <option value="Amazon Associates">Amazon Associates</option>
               </select>
             </div>
           </div>
@@ -420,7 +828,7 @@ export function AnalyticsTab({
               <option value="">-- Chung toàn trang --</option>
               {products.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.title}
+                  {p.title} ({getProductCommissionRate(p)}%)
                 </option>
               ))}
             </select>
@@ -476,9 +884,28 @@ export function AnalyticsTab({
               />
             </div>
             <div>
-              <label className="block font-medium text-[#352E29]">
-                Hoa hồng thực nhận (USD)
-              </label>
+              <div className="flex items-center justify-between gap-1">
+                <label className="block font-medium text-[#352E29]">
+                  Hoa hồng (USD)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const rev = Number.parseFloat(form.revenueUsd) || 0;
+                    const est =
+                      Math.round(((rev * selectedFormRate) / 100) * 100) / 100;
+                    setForm((prev) => ({
+                      ...prev,
+                      commissionUsd: est.toFixed(2),
+                    }));
+                  }}
+                  className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#B84A27] hover:underline"
+                  title="Tự tính hoa hồng theo % Amazon của sản phẩm"
+                >
+                  <Calculator className="h-3 w-3" />
+                  Tính {selectedFormRate}%
+                </button>
+              </div>
               <input
                 type="number"
                 step="0.01"

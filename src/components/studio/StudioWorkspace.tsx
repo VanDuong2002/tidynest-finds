@@ -273,7 +273,9 @@ export function StudioWorkspace({
             entries={analytics}
             products={products}
             usdToVndRate={config.usdToVndRate}
+            amazonAssociateTag={config.amazonAssociateTag}
             onEntriesChange={setAnalytics}
+            onProductsChange={setProducts}
           />
         ) : null}
 

@@ -39,6 +39,8 @@ export interface Product {
   featured: boolean;
   isSample: boolean;
   ratingLabel?: string;
+  estimatedPriceUsd?: number;
+  commissionRatePercent?: number;
   createdAt: string;
 }
 
@@ -82,6 +84,27 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
   bathroom: "Bathroom & Vanity",
   organization: "Home Organization",
 };
+
+// Standard Amazon Associates US commission rates by category (%)
+export const AMAZON_CATEGORY_COMMISSION_RATES: Record<ProductCategory, number> = {
+  kitchen: 4.5,
+  pantry: 3.0,
+  bathroom: 3.0,
+  organization: 3.0,
+};
+
+export function getProductCommissionRate(
+  product: Pick<Product, "category" | "commissionRatePercent">
+): number {
+  if (
+    typeof product.commissionRatePercent === "number" &&
+    Number.isFinite(product.commissionRatePercent) &&
+    product.commissionRatePercent >= 0
+  ) {
+    return product.commissionRatePercent;
+  }
+  return AMAZON_CATEGORY_COMMISSION_RATES[product.category] ?? 3.0;
+}
 
 export const PRICE_BADGES: PriceBadge[] = [
   "Under $25",

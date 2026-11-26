@@ -10,7 +10,11 @@ import {
   Trash2,
 } from "lucide-react";
 import type { PriceBadge, Product, ProductCategory } from "@/lib/types";
-import { CATEGORY_LABELS, PRICE_BADGES } from "@/lib/types";
+import {
+  CATEGORY_LABELS,
+  PRICE_BADGES,
+  getProductCommissionRate,
+} from "@/lib/types";
 
 interface ProductsTabProps {
   products: Product[];
@@ -435,6 +439,9 @@ export function ProductsTab({
                   </span>
                   <span className="rounded-full bg-[#F2EBE0] px-2.5 py-0.5 text-[11px] font-semibold text-[#1F1B18]">
                     {p.badge}
+                  </span>
+                  <span className="rounded-full bg-[#FFF3EB] px-2.5 py-0.5 text-[11px] font-semibold text-[#B84A27]">
+                    HH {getProductCommissionRate(p)}%
                   </span>
                   {p.isSample ? (
                     <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800">
