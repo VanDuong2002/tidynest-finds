@@ -185,11 +185,12 @@ export function SocialStudioTab({
       const W = 1080;
       const H = 1920;
       const theme = THEMES[themeId];
+      const safeP = Math.min(1, Math.max(0, Number.isFinite(progress01) ? progress01 : 0));
       const sceneCount = pack.scenes.length;
-      const rawScene = progress01 * sceneCount;
-      const sceneIdx = Math.min(sceneCount - 1, Math.floor(rawScene));
+      const rawScene = safeP * sceneCount;
+      const sceneIdx = Math.min(sceneCount - 1, Math.max(0, Math.floor(rawScene)));
       const sceneProgress = Math.min(1, Math.max(0, rawScene - sceneIdx));
-      const scene = pack.scenes[sceneIdx];
+      const scene = pack.scenes[sceneIdx] ?? pack.scenes[0];
 
       // Background gradient
       const grad = ctx.createLinearGradient(0, 0, 0, H);
@@ -308,7 +309,7 @@ export function SocialStudioTab({
     [pack, themeId, config.siteName]
   );
 
-  // Load product/collection image safely for Canvas
+  // Load product/collection image safely for Canvas (only when image URL changes)
   useEffect(() => {
     if (!activeImageUrl) return;
     const img = new Image();
@@ -318,10 +319,10 @@ export function SocialStudioTab({
       : `/api/studio/image-proxy?url=${encodeURIComponent(activeImageUrl)}`;
     img.onload = () => {
       loadedImageRef.current = img;
-      drawFrame((activeSceneIdx + 0.35) / 4);
+      drawFrame(0.08);
     };
     img.src = src;
-  }, [activeImageUrl, activeSceneIdx, drawFrame]);
+  }, [activeImageUrl, drawFrame]);
 
   useEffect(() => {
     if (!previewPlaying && !exporting) {
@@ -340,12 +341,18 @@ export function SocialStudioTab({
     setPreviewPlaying(true);
     setVideoNotice(null);
     const totalMs = 12000;
-    const start = performance.now();
+    let start: number | null = null;
+    let lastScene = -1;
 
     const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / totalMs);
+      if (start === null) start = now;
+      const p = Math.min(1, Math.max(0, (now - start) / totalMs));
       drawFrame(p);
-      setActiveSceneIdx(Math.min(3, Math.floor(p * 4)));
+      const nextScene = Math.min(3, Math.max(0, Math.floor(p * 4)));
+      if (nextScene !== lastScene) {
+        lastScene = nextScene;
+        setActiveSceneIdx(nextScene);
+      }
       if (p < 1) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
@@ -370,65 +377,80 @@ export function SocialStudioTab({
     setExportProgress(0);
     setVideoNotice("Đang render video 9:16 (1080×1920, 12 giây)...");
 
-    const mimeCandidates = [
-      "video/webm;codecs=vp9",
-      "video/webm;codecs=vp8",
-      "video/webm",
-    ];
-    const mimeType =
-      mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) || "video/webm";
+    try {
+      const mimeCandidates = [
+        "video/webm;codecs=vp9",
+        "video/webm;codecs=vp8",
+        "video/webm",
+      ];
+      const mimeType =
+        mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) || "video/webm";
 
-    const stream = canvas.captureStream(30);
-    const recorder = new MediaRecorder(stream, {
-      mimeType,
-      videoBitsPerSecond: 4_500_000,
-    });
-    const chunks: BlobPart[] = [];
-    recorder.ondataavailable = (e) => {
-      if (e.data && e.data.size > 0) chunks.push(e.data);
-    };
-
-    const donePromise = new Promise<Blob>((resolve) => {
-      recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
-    });
-
-    recorder.start(200);
-    const totalMs = 12000;
-    const start = performance.now();
-
-    await new Promise<void>((resolve) => {
-      const tick = (now: number) => {
-        const p = Math.min(1, (now - start) / totalMs);
-        drawFrame(p);
-        setActiveSceneIdx(Math.min(3, Math.floor(p * 4)));
-        setExportProgress(Math.round(p * 100));
-        if (p < 1) {
-          rafRef.current = requestAnimationFrame(tick);
-        } else {
-          resolve();
-        }
+      const stream = canvas.captureStream(30);
+      const recorder = new MediaRecorder(stream, {
+        mimeType,
+        videoBitsPerSecond: 4_500_000,
+      });
+      const chunks: BlobPart[] = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
       };
-      rafRef.current = requestAnimationFrame(tick);
-    });
 
-    recorder.stop();
-    const blob = await donePromise;
-    const url = URL.createObjectURL(blob);
-    const slug =
-      (targetType === "product"
-        ? selectedProduct?.slug
-        : selectedCollection?.slug) || "tidynest";
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `tidynest-${slug}-reel-9x16.webm`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
+      const donePromise = new Promise<Blob>((resolve) => {
+        recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
+      });
 
-    setExporting(false);
-    setExportProgress(100);
-    setVideoNotice(
-      "✓ Đã xuất xong video dọc 1080×1920 (.webm)! Bạn có thể up thẳng lên TikTok, YouTube Shorts, Instagram Reels & Facebook Reels."
-    );
+      recorder.start(200);
+      const totalMs = 12000;
+      let start: number | null = null;
+      let lastScene = -1;
+
+      await new Promise<void>((resolve) => {
+        const tick = (now: number) => {
+          if (start === null) start = now;
+          const p = Math.min(1, Math.max(0, (now - start) / totalMs));
+          drawFrame(p);
+          const nextScene = Math.min(3, Math.max(0, Math.floor(p * 4)));
+          if (nextScene !== lastScene) {
+            lastScene = nextScene;
+            setActiveSceneIdx(nextScene);
+          }
+          setExportProgress(Math.round(p * 100));
+          if (p < 1) {
+            rafRef.current = requestAnimationFrame(tick);
+          } else {
+            resolve();
+          }
+        };
+        rafRef.current = requestAnimationFrame(tick);
+      });
+
+      recorder.stop();
+      const blob = await donePromise;
+      const url = URL.createObjectURL(blob);
+      const slug =
+        (targetType === "product"
+          ? selectedProduct?.slug
+          : selectedCollection?.slug) || "tidynest";
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `tidynest-${slug}-reel-9x16.webm`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+      setExportProgress(100);
+      setVideoNotice(
+        "✓ Đã xuất xong video dọc 1080×1920 (.webm)! Bạn có thể up thẳng lên TikTok, YouTube Shorts, Instagram Reels & Facebook Reels."
+      );
+    } catch (err) {
+      setVideoNotice(
+        err instanceof Error
+          ? `Lỗi xuất video: ${err.message}`
+          : "Không thể xuất video trên trình duyệt này."
+      );
+    } finally {
+      setExporting(false);
+    }
   }
 
   function copyText(key: string, value: string) {
