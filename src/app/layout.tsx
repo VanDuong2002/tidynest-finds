@@ -41,6 +41,9 @@ export async function generateMetadata(): Promise<Metadata> {
       description: config.tagline,
       type: "website",
     },
+    other: {
+      "p:domain_verify": "9ec4a6ced8d63e4f86bc971c23b1cf03",
+    },
   };
 }
 
