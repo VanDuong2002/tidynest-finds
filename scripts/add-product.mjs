@@ -92,6 +92,8 @@ async function main() {
     featured: input.featured !== false,
     isSample: false,
     ...(input.ratingLabel ? { ratingLabel: String(input.ratingLabel).trim() } : {}),
+    ...(typeof input.estimatedPriceUsd === "number" ? { estimatedPriceUsd: input.estimatedPriceUsd } : {}),
+    ...(typeof input.commissionRatePercent === "number" ? { commissionRatePercent: input.commissionRatePercent } : {}),
     createdAt: new Date().toISOString(),
   };
 
