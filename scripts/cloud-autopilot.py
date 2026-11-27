@@ -167,26 +167,26 @@ def pick_next_product(products: list, published_data: dict):
 def generate_script_with_gemini(product: dict, code: str) -> dict | None:
     if not GEMINI_API_KEY:
         return None
-    prompt = f"""You are a viral US Amazon Finds YouTube Shorts scriptwriter.
-Create a punchy, high-retention 20-second vertical Short script for this product:
-- Title: {product['title']}
+    prompt = f"""You are a viral US YouTube Shorts storyteller & home-lifestyle creator (monetization-friendly, high-retention storytelling + natural affiliate conversion).
+Write a relatable 20-second mini-story Short for this product (DO NOT sound like a boring ad — tell a real everyday before-and-after story that hooks viewers emotionally AND asks a question at the end to spark comments for YouTube monetization!):
+- Product: {product['title']}
 - Category: {product['category']}
 - Badge: {product['badge']}
-- Rating: {product.get('ratingLabel', 'Top Rated on Amazon US')}
-- Pitch: {product['shortPitch']}
+- Social Proof: {product.get('ratingLabel', 'Top Rated on Amazon US')}
+- Core Benefit: {product['shortPitch']}
 - Highlights: {'; '.join(product.get('highlights', [])[:3])}
 - Bio Code: {code}
 
 Return STRICT JSON only (no markdown fences) with these exact keys:
 {{
-  "yt_title": "Catchy <85 char YouTube Shorts title ending with #shorts #amazonfinds",
-  "voiceover": "Natural, energetic 45-55 word US English voiceover ending with: Tap the link in our description or bio and search {code} to check today's Amazon price!",
-  "veo_prompt": "Cinematic 9:16 vertical lifestyle b-roll prompt showing this home/kitchen product in a sunlit modern American home, warm aesthetic lighting, smooth slow camera push-in, no text",
+  "yt_title": "Story-driven curiosity title <85 chars ending with #shorts #amazonfinds",
+  "voiceover": "Natural, warm first-person US English mini-story (50-62 words): 1) Relatable daily frustration, 2) Trying this upgrade, 3) How calm/easy life feels now + social proof, 4) Engagement question + soft CTA: 'Would you use this? Comment below and search {code} in our bio!'",
+  "veo_prompt": "Cinematic 9:16 vertical lifestyle storytelling video in a sunlit modern American home: opening with cozy warm morning light, smooth slow-motion reveal of {product['title']} solving daily clutter effortlessly, aesthetic warm tones, shallow depth of field, photorealistic, high production value, no on-screen text",
   "scenes": [
-    {{"badge": "SHORT BADGE", "headline": "5-8 word hook", "subline": "Short punchy line", "cta": "2-4 word pill"}},
-    {{"badge": "SHORT BADGE", "headline": "Product reveal", "subline": "Key benefit", "cta": "2-4 word pill"}},
-    {{"badge": "SOCIAL PROOF", "headline": "Why buyers love it", "subline": "Top highlight", "cta": "2-4 word pill"}},
-    {{"badge": "SHOP FIND {code}", "headline": "Check Live Amazon Price", "subline": "Link in Description & Bio — search {code}", "cta": "SEARCH {code} IN BIO →"}}
+    {{"badge": "STORYTIME · {code}", "headline": "Relatable 5-7 word frustration hook", "subline": "We have ALL been there...", "cta": "Wait For The Fix →"}},
+    {{"badge": "THE GAME CHANGER", "headline": "Meet Find {code}", "subline": "Short product reveal & benefit", "cta": "{product['badge']}"}},
+    {{"badge": "THE AFTER", "headline": "Instant Calm Every Single Day", "subline": "Top highlight + social proof", "cta": "{product.get('ratingLabel', '4.5★+ Rated')}"}},
+    {{"badge": "WOULD YOU TRY IT?", "headline": "Comment YES or NO Below!", "subline": "Search {code} at our link in bio", "cta": "SEARCH {code} IN BIO →"}}
   ]
 }}"""
 
@@ -260,55 +260,81 @@ def fallback_script(product: dict, code: str) -> dict:
     }
 
 
-def try_generate_veo3_clip(veo_prompt: str, out_mp4: Path) -> bool:
-    """Optional Google Veo 3 cinematic 9:16 clip generator via Gemini API."""
+def try_generate_veo3_clip(veo_prompt: str, script: dict, out_mp4: Path, code: str) -> bool:
+    """Google Veo 3 cinematic 9:16 storytelling generator (prefers Veo 3 Fast for lower cost)."""
     if not (GEMINI_API_KEY and ENABLE_VEO3):
         return False
 
-    print("[veo3] Requesting cinematic 9:16 video generation via veo-3.0-generate-001...")
-    start_url = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"veo-3.0-generate-001:predictLongRunning?key={urllib.parse.quote(GEMINI_API_KEY)}"
-    )
-    payload = json.dumps(
-        {
-            "instances": [{"prompt": veo_prompt}],
-            "parameters": {"aspectRatio": "9:16", "durationSeconds": 8},
-        }
-    ).encode("utf-8")
+    raw_veo = WORK_DIR / "veo3_raw.mp4"
+    models = ["veo-3.0-fast-generate-001", "veo-3.0-generate-001"]
 
-    try:
-        req = urllib.request.Request(start_url, data=payload, headers={"Content-Type": "application/json"}, method="POST")
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            op = json.loads(resp.read().decode("utf-8"))
-        op_name = op.get("name")
-        if not op_name:
-            return False
+    for model_name in models:
+        print(f"[veo3] Requesting cinematic 9:16 storytelling clip via {model_name}...")
+        start_url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{model_name}:predictLongRunning?key={urllib.parse.quote(GEMINI_API_KEY)}"
+        )
+        payload = json.dumps(
+            {
+                "instances": [{"prompt": veo_prompt}],
+                "parameters": {"aspectRatio": "9:16", "durationSeconds": 8},
+            }
+        ).encode("utf-8")
 
-        poll_url = f"https://generativelanguage.googleapis.com/v1beta/{op_name}?key={urllib.parse.quote(GEMINI_API_KEY)}"
-        for _ in range(36):  # Up to 3 minutes
-            time.sleep(5)
-            with urllib.request.urlopen(poll_url, timeout=20) as p_resp:
-                status = json.loads(p_resp.read().decode("utf-8"))
-            if not status.get("done"):
+        try:
+            req = urllib.request.Request(start_url, data=payload, headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                op = json.loads(resp.read().decode("utf-8"))
+            op_name = op.get("name")
+            if not op_name:
                 continue
-            videos = (
-                status.get("response", {})
-                .get("generateVideoResponse", {})
-                .get("generatedSamples", [])
-            )
-            if not videos:
-                return False
-            video_uri = videos[0].get("video", {}).get("uri")
-            if not video_uri:
-                return False
-            dl_url = f"{video_uri}&key={urllib.parse.quote(GEMINI_API_KEY)}" if "?" in video_uri else f"{video_uri}?key={urllib.parse.quote(GEMINI_API_KEY)}"
-            with urllib.request.urlopen(dl_url, timeout=60) as v_resp:
-                out_mp4.write_bytes(v_resp.read())
-            print(f"[veo3] Downloaded Veo 3 clip: {out_mp4.stat().st_size} bytes")
-            return out_mp4.stat().st_size > 10_000
-    except Exception as exc:
-        print(f"[veo3] Falling back to Pro Studio renderer ({exc})")
+
+            poll_url = f"https://generativelanguage.googleapis.com/v1beta/{op_name}?key={urllib.parse.quote(GEMINI_API_KEY)}"
+            for _ in range(36):
+                time.sleep(5)
+                with urllib.request.urlopen(poll_url, timeout=20) as p_resp:
+                    status = json.loads(p_resp.read().decode("utf-8"))
+                if not status.get("done"):
+                    continue
+                videos = (
+                    status.get("response", {})
+                    .get("generateVideoResponse", {})
+                    .get("generatedSamples", [])
+                )
+                if not videos:
+                    break
+                video_uri = videos[0].get("video", {}).get("uri")
+                if not video_uri:
+                    break
+                dl_url = f"{video_uri}&key={urllib.parse.quote(GEMINI_API_KEY)}" if "?" in video_uri else f"{video_uri}?key={urllib.parse.quote(GEMINI_API_KEY)}"
+                with urllib.request.urlopen(dl_url, timeout=60) as v_resp:
+                    raw_veo.write_bytes(v_resp.read())
+                if raw_veo.stat().st_size > 10_000:
+                    # Add storytelling voiceover + clean CTA bar over the Veo 3 cinematic footage
+                    vo_path = WORK_DIR / "veo_voiceover.mp3"
+                    asyncio.run(
+                        edge_tts.Communicate(script["voiceover"], voice="en-US-JennyNeural", rate="+8%").save(str(vo_path))
+                    )
+                    subprocess.run(
+                        [
+                            FFMPEG, "-y",
+                            "-stream_loop", "-1", "-i", str(raw_veo),
+                            "-i", str(vo_path),
+                            "-map", "0:v:0", "-map", "1:a:0",
+                            "-c:v", "libx264", "-preset", "veryfast", "-crf", "22",
+                            "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,format=yuv420p",
+                            "-c:a", "aac", "-b:a", "192k",
+                            "-shortest", "-movflags", "+faststart",
+                            str(out_mp4),
+                        ],
+                        check=True,
+                        capture_output=True,
+                    )
+                    print(f"[veo3] Built Veo 3 storytelling Short ({model_name}): {out_mp4.stat().st_size} bytes")
+                    return True
+        except Exception as exc:
+            print(f"[veo3] {model_name} unavailable ({exc})")
+    print("[veo3] Falling back cleanly to free Pro Studio renderer ($0).")
     return False
 
 
@@ -539,7 +565,7 @@ def main():
     out_mp4 = WORK_DIR / f"{product['slug']}.mp4"
 
     # Try Veo 3 first if explicitly enabled, else Pro Studio 1080x1920 renderer
-    used_veo3 = try_generate_veo3_clip(script.get("veo_prompt", ""), out_mp4)
+    used_veo3 = try_generate_veo3_clip(script.get("veo_prompt", ""), script, out_mp4, code)
     if not used_veo3:
         render_studio_short(product, script, out_mp4, base_url)
 
