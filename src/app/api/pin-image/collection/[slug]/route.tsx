@@ -100,6 +100,7 @@ export async function GET(
           </span>
           <div
             style={{
+              display: "flex",
               backgroundColor: "#B84A27",
               color: "#FAF7F2",
               padding: "10px 24px",
@@ -110,7 +111,7 @@ export async function GET(
               textTransform: "uppercase",
             }}
           >
-            {collection.productIds.length} TOP FINDS
+            {`${collection.productIds.length} TOP FINDS`}
           </div>
         </div>
 
@@ -223,6 +224,7 @@ export async function GET(
             </div>
             <div
               style={{
+                display: "flex",
                 backgroundColor: "#181512",
                 color: "#FAF7F2",
                 padding: "16px 32px",
@@ -233,7 +235,7 @@ export async function GET(
                 textTransform: "uppercase",
               }}
             >
-              See All {collection.productIds.length} Amazon Finds →
+              {`See All ${collection.productIds.length} Amazon Finds →`}
             </div>
           </div>
         </div>

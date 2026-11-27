@@ -34,6 +34,14 @@ export default function HomePage() {
         <div className="relative z-10 mx-auto grid w-full max-w-[1360px] items-center gap-12 px-5 sm:px-8 lg:grid-cols-12 lg:px-14">
           {/* Left 5 Columns: Crisp Funnel Display Headline & Pill CTAs */}
           <div className="lg:col-span-5 lg:pr-6">
+            <Link
+              href="/collections/best-amazon-home-kitchen-gift-ideas-holiday"
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-rule)] bg-[var(--color-light)]/90 px-3.5 py-1.5 text-xs font-medium text-[var(--color-ink)] shadow-sm transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              <span className="h-2 w-2 rounded-full bg-[var(--color-accent)]" />
+              Season&apos;s Top 5 Viral Amazon Home Gifts →
+            </Link>
+
             <h1 className="font-display text-[3rem] font-normal leading-[1.03] text-[var(--color-ink)] sm:text-[4rem] lg:text-[4.65rem]">
               Tidy spaces,
               <br />
