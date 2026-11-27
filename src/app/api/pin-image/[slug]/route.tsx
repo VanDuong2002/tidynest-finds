@@ -148,15 +148,38 @@ export async function GET(
           style={{
             display: "flex",
             flexDirection: "column",
-            marginTop: "32px",
+            marginTop: "28px",
             flex: 1,
             justifyContent: "space-between",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            {product.ratingLabel ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <span
+                  style={{
+                    backgroundColor: "#FDF3E3",
+                    color: "#9A5B13",
+                    border: "1px solid #EBD3AD",
+                    padding: "6px 18px",
+                    fontSize: "22px",
+                    fontFamily: "sans-serif",
+                    fontWeight: 700,
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {product.ratingLabel}
+                </span>
+              </div>
+            ) : null}
             <div
               style={{
-                fontSize: "52px",
+                fontSize: "48px",
                 lineHeight: 1.12,
                 fontWeight: 700,
                 color: "#181512",
@@ -169,14 +192,14 @@ export async function GET(
             </div>
             <div
               style={{
-                fontSize: "26px",
-                lineHeight: 1.45,
+                fontSize: "24px",
+                lineHeight: 1.42,
                 color: "#4E453D",
                 fontFamily: "sans-serif",
               }}
             >
-              {product.shortPitch.length > 130
-                ? `${product.shortPitch.slice(0, 127)}...`
+              {product.shortPitch.length > 125
+                ? `${product.shortPitch.slice(0, 122)}...`
                 : product.shortPitch}
             </div>
           </div>
@@ -229,7 +252,7 @@ export async function GET(
                 textTransform: "uppercase",
               }}
             >
-              Tap to Shop on Amazon →
+              Check Price on Amazon →
             </div>
           </div>
         </div>
