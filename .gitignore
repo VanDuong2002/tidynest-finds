@@ -8,3 +8,7 @@ out/
 next-env.d.ts
 .superpowers/
 data/studio-secrets.json
+
+# generated local short videos
+youtube-shorts-ready/
+.autopilot_tmp/

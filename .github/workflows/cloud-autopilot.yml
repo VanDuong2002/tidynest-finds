@@ -1,0 +1,52 @@
+name: TidyNest 24/7 Cloud Autopilot (US Peak Hours)
+
+on:
+  schedule:
+    # 3 US Eastern Peak Slots daily (runs even when your laptop is OFF!)
+    # 14:00 UTC = 9:00 AM EST | 18:00 UTC = 1:00 PM EST | 02:00 UTC = 9:00 PM EST
+    - cron: "0 2,14,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  curate-render-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install FFmpeg & Python video dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          pip install -q edge-tts pillow
+
+      - name: Run 24/7 Cloud Autopilot (Script + Video + YouTube Shorts)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ENABLE_VEO3: ${{ vars.ENABLE_VEO3 }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: python3 scripts/cloud-autopilot.py
+
+      - name: Commit & push updated catalog/published log (triggers Vercel + Pinterest RSS)
+        run: |
+          git config user.name "TidyNest Cloud Bot"
+          git config user.email "bot@tidynest-finds.local"
+          git add data/products.json data/auto-queue.json data/published-videos.json public/images/uploads
+          if git diff --cached --quiet; then
+            echo "No catalog changes to commit."
+          else
+            git commit -m "chore(autopilot): publish scheduled Short & update catalog"
+            git push origin master
+          fi
